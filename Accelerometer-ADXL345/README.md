@@ -47,3 +47,11 @@ This I2C example is directed toward the [Sparkfun ADXL345 Accelerometer](https:/
   <img src="https://raw.githubusercontent.com/labjack/I2C-AppNotes/master/Accelerometer-ADXL345/I2C_Simulator_Example_Write.JPG" width="100%" alt="ADXl345 Example I2C Write Command" title="I2C Write Command">
 
 2. This sensor doesn't need any time inbetween the I2C write and read commands to process the user's request. Therefore, when we are reading data from the device we can use the function calls to write and then immediately read back data from the device.
+
+3. The ADXL345 accelerometer powers up into a low-power mode where most of its functionality is disabled.  In order to get any readings from this accelerometer it first needs to be configured.  In general we need to do the following:
+  1. Configure the output data rate (Address 0x2C) for 800Hz (0x0D).
+  2. Configure the power-saving features (0X2D) register to be in write mode (0x08).
+  3. Configure the DATA_FORMAT (0x31) register for an appropriate range.
+  4. Configure the sensor to bypass the FIFO by setting the FIFO_CTL (0x38) register to be (0x08).
+4. Configuring the accelerometer is as simple as writing two bytes of data.  The first byte being the register's address and the second ++ being the data payload.
+4. After doing this we can write one byte of data (address 0x32) and then read 6 bytes of data that will be the X, Y, and Z accelerometer data.
