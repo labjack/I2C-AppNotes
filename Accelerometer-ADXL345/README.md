@@ -12,10 +12,14 @@ This I2C example is directed toward the [Sparkfun ADXL345 Accelerometer](https:/
 
 ##Connecting the Sensor:
 1. This sensor requires a 2.0V to 3.6V supply voltage so we will use LabJacks LJTick-LVDigitalIO tick with the switch selecting the 3.3V logic level.
+  
+  <a href="https://labjack.com/accessories/ljtick-lvdigitalio"><img src="https://labjack.com/sites/default/files/LJTick-LVDigitalIO_1_white.JPG" width="100px" height="75px" alt="LJTick-LVDigitalIO" title="LJTick-LVDigitalIO"></a>
 
-2. Looking at Sparkfun's breakout board schematic it is clear that no pull-up resistors are installed on the SDA and SCL lines so they will need to be installed.  It essentially just breaks out the part's IO lines and leaves the rest to the integrator.
+2. Looking at Sparkfun's breakout board [schematic](http://cdn.sparkfun.com/datasheets/Sensors/Accelerometers/ADXL345_Breakout.pdf) it is clear that no pull-up resistors are installed on the SDA and SCL lines so they will need to be installed.  It essentially just breaks out the part's IO lines and leaves the rest to the integrator.
 
 3. Looking at the datasheet for the ADXL345 you will find an I2C Connection Diagram (Figure 8).  It instructs the implementer to add a short to the !CS line and VCC and a short between the SDO/ALT ADDRESS (pin 12) line and GND so that the 7-bit I2C address becomes 0x53.
+  
+  <img src="https://raw.githubusercontent.com/labjack/I2C-AppNotes/master/Accelerometer-ADXL345/ADXL345-I2C-Connection-Diagram.JPG" width="258px" height="173px" alt="LabJack U3-LV/U3-HV USB DAQ Device" title="U3">
 
 ##Configuring the LabJack I2C Bus:
 1. The 7-bit Slave Address is 0x53.
