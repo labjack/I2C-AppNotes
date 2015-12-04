@@ -1,5 +1,7 @@
 This I2C example is directed toward the [Sparkfun ADXL345 Accelerometer](https://www.sparkfun.com/products/9836)
 
+<a href="https://www.sparkfun.com/products/9836"><img src="https://cdn.sparkfun.com/assets/parts/3/9/0/2/09836-_01c.jpg" width="213.75px" height="213.75px" alt="Sparkfun ADXL345 Accelerometer" title="Sparkfun ADXL345 Accelerometer"></a>
+
 ##Directory Structure
 * [language_name]-utils Directories:  
   These folders contain sensor-specific code that provide helpful tools for collecting and parsing data from the ADXL345 sensor.
