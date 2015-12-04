@@ -3,9 +3,9 @@ This I2C example is directed toward the [Sparkfun ADXL345 Accelerometer](https:/
 ##Directory Structure
 There are several [language]-utils folders that provide helpful abstractions to the I2C library.
 The UD_Devices directory contains the examples for the ADXL345 Accelerometer implemented in a variety of languages targeting the LabJack devices:
-* <a href="https://labjack.com/products/u3"><img src="https://labjack.com/sites/default/files/U3HV_white_shadow.JPG" width="150px" height="112px" alt="LabJack U3-LV/U3-HV USB DAQ Device" title="U3"></a>
-* <a href="https://labjack.com/products/u6"><img src="https://labjack.com/sites/default/files/U6_0.jpg" width="150px" height="112px" alt="LabJack U6/U6-Pro USB DAQ Device" title="U6"></a>
-* <a href="https://labjack.com/products/ue9"><img src="https://labjack.com/sites/default/files/UE9.JPG" width="150px" height="112px" alt="LabJack UE9/UE9-Pro USB and Ethernet DAQ Device" title="UE9"></a>
+* <a href="https://labjack.com/products/u3"><img src="https://labjack.com/sites/default/files/U3HV_white_shadow.JPG" width="100px" height="75px" alt="LabJack U3-LV/U3-HV USB DAQ Device" title="U3"></a>
+* <a href="https://labjack.com/products/u6"><img src="https://labjack.com/sites/default/files/U6_0.jpg" width="100px" height="75px" alt="LabJack U6/U6-Pro USB DAQ Device" title="U6"></a>
+* <a href="https://labjack.com/products/ue9"><img src="https://labjack.com/sites/default/files/UE9.JPG" width="100px" height="75px" alt="LabJack UE9/UE9-Pro USB and Ethernet DAQ Device" title="UE9"></a>
 
 ##Connecting the Sensor:
 1. This sensor requires a 2.0V to 3.6V supply voltage so we will use LabJacks LJTick-LVDigitalIO tick with the switch selecting the 3.3V logic level.
