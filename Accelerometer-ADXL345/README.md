@@ -40,7 +40,7 @@ This I2C example is directed toward the [Sparkfun ADXL345 Accelerometer](https:/
 5. We don't need to adjust the I2C clock speed because the sensor supports up to 400kHz data transfer modes.
 
 ##Communicating with the Sensor:
-1. Look at the LabJack [I2C-Simulator](https://labjack.com/content/i2c-simulator) tool.  This basic online tool will let you visualize the data being sent over the I2C data bus during various write and read commands.  It also helps visualize what some of the I2C Options are.  An example write command for this sensor at slave address 0x43 looks like:
+1. Look at the LabJack [I2C-Simulator](https://labjack.com/content/i2c-simulator) tool.  This basic online tool will let you visualize the data being sent over the I2C data bus during various write and read commands.  It also helps visualize what some of the I2C Options are.  An example write command for this sensor at slave address 0x53 looks like:
   
   <img src="https://raw.githubusercontent.com/labjack/I2C-AppNotes/master/Accelerometer-ADXL345/I2C_Simulator_Example_Write.JPG" width="100%" alt="ADXl345 Example I2C Write Command" title="I2C Write Command">
 
