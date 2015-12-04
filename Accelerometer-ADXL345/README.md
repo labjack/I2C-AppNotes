@@ -4,7 +4,8 @@ This I2C example is directed toward the [Sparkfun ADXL345 Accelerometer](https:/
 * There are several [language]-utils folders that provide helpful abstractions to the I2C library.
 * The UD_Devices directory contains the examples for the ADXL345 Accelerometer implemented in a variety of languages targeting the LabJack devices:
   * ![LabJack U3-LV/U3-HV USB DAQ Device](https://labjack.com/products/u3)
-  * [![LabJack U6/U6 USB DAQ Device](https://labjack.com/sites/default/files/U6_0.jpg =100x60)](https://labjack.com/products/u6)
+  * [![LabJack U6/U6 USB DAQ Device](https://labjack.com/sites/default/files/U6_0.jpg =100x60){:height="36px" width="36px"}](https://labjack.com/products/u6)
+  * <img src="https://labjack.com/sites/default/files/U6_0.jpg =100x60" width="100px" height="60px">
   * ![LabJack UE9/UE9-Pro USB and Ethernet DAQ Device](https://labjack.com/products/ue9)
 
 ##Connecting the Sensor:
