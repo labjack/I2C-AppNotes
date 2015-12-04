@@ -33,6 +33,7 @@ This I2C example is directed toward the [Sparkfun ADXL345 Accelerometer](https:/
 4. Looking at the datasheet for the ADXL345 you will find a breif-overview with what basic communications with this sensor look like (Figure 9. I2C Device Addressing).
 
   <img src="https://raw.githubusercontent.com/labjack/I2C-AppNotes/master/Accelerometer-ADXL345/ADXL345-I2C-Com-Diagram.JPG" width="100%" alt="ADXL345 I2C Device Addressing Diagram" title="Device Addressing Diagram">
+  
   The sensor supports single and multi-byte reads/writes.  One important thing to keep in mind is what happens when trying to read data.  Look at the "Single-Byte Read" command.  Inbetween the write and read commands there is a "Start 1" block indicating that there needs to be either a restart or a stop followed by a start.  These diagrams indicate that we don't need to enable the I2C settings: 
   1. Reset at start
   2. No top when restarting
