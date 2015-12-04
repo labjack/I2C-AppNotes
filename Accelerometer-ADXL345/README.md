@@ -30,7 +30,7 @@ This I2C example is directed toward the [Sparkfun ADXL345 Accelerometer](https:/
 
 4. Looking at the datasheet for the ADXL345 you will find a breif-overview with what basic communications with this sensor look like (Figure 9. I2C Device Addressing).
 
-  <img src="https://raw.githubusercontent.com/labjack/I2C-AppNotes/master/Accelerometer-ADXL345/ADXL345-I2C-Com-Diagram.JPG" width="258px" height="173px" alt="ADXL345 I2C Device Addressing Diagram" title="Device Addressing Diagram">
+  <img src="https://raw.githubusercontent.com/labjack/I2C-AppNotes/master/Accelerometer-ADXL345/ADXL345-I2C-Com-Diagram.JPG" width="100%" alt="ADXL345 I2C Device Addressing Diagram" title="Device Addressing Diagram">
 
   The sensor supports single and multi-byte reads/writes.  One important thing to keep in mind is what happens when trying to read data.  Look at the "Single-Byte Read" command.  Inbetween the write and read commands there is a "Start 1" block indicating that there needs to be either a restart or a stop followed by a start.  These diagrams indicate that we don't need to enable the I2C settings: 
   1. Reset at start
@@ -40,5 +40,8 @@ This I2C example is directed toward the [Sparkfun ADXL345 Accelerometer](https:/
 5. We don't need to adjust the I2C clock speed because the sensor supports up to 400kHz data transfer modes.
 
 ##Communicating with the Sensor:
-1. A very important diagram indicating the basics for how 
-1. This sensor doesn't need any time inbetween the I2C write and read commands to process the user's request.  Therefore, when we are reading data from the device we can use the function calls to write and then immediately read back data from the device.
+1. Look at the LabJack [I2C-Simulator](https://labjack.com/content/i2c-simulator) tool.  This basic online tool will let you visualize the data being sent over the I2C data bus during various write and read commands.  It also helps visualize what some of the I2C Options are.  An example write command for this sensor at slave address 0x43 looks like:
+  
+  <img src="https://raw.githubusercontent.com/labjack/I2C-AppNotes/master/Accelerometer-ADXL345/I2C_Simulator_Example_Write.JPG" width="100%" alt="ADXl345 Example I2C Write Command" title="I2C Write Command">
+
+2. This sensor doesn't need any time inbetween the I2C write and read commands to process the user's request.  Therefore, when we are reading data from the device we can use the function calls to write and then immediately read back data from the device.
