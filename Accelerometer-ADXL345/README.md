@@ -22,7 +22,7 @@ This I2C example is directed toward the [Sparkfun ADXL345 Accelerometer](https:/
   <img src="https://raw.githubusercontent.com/labjack/I2C-AppNotes/master/Accelerometer-ADXL345/ADXL345-I2C-Connection-Diagram.JPG" width="258px" height="173px" alt="ADXL345 I2C Device Connection Diagram" title="ADXL345 Wiring Diagram">
 
 ##Configuring the LabJack I2C Bus:
-1. The 7-bit Slave Address is 0x53.
+1. The 7-bit Slave Address is 0x53.  This information is found in the datasheet and was configured by shorting SDO/ALT ADDRESS (pin 12) line to GND.
 
 2. Most of the included examples will connect the sensor's SCL line to pin 7 (FIO7) of the LabJack device.
 
@@ -40,8 +40,8 @@ This I2C example is directed toward the [Sparkfun ADXL345 Accelerometer](https:/
 5. We don't need to adjust the I2C clock speed because the sensor supports up to 400kHz data transfer modes.
 
 ##Communicating with the Sensor:
-1. Look at the LabJack [I2C-Simulator](https://labjack.com/content/i2c-simulator) tool.  This basic online tool will let you visualize the data being sent over the I2C data bus during various write and read commands.  It also helps visualize what some of the I2C Options are.  An example write command for this sensor at slave address 0x43 looks like:
+1. Look at the LabJack [I2C-Simulator](https://labjack.com/content/i2c-simulator) tool. This basic online tool will let you visualize the data being sent over the I2C data bus during various write and read commands.  It also helps visualize what some of the I2C Options are. An example write command for this sensor at slave address 0x43 looks like:
   
   <img src="https://raw.githubusercontent.com/labjack/I2C-AppNotes/master/Accelerometer-ADXL345/I2C_Simulator_Example_Write.JPG" width="100%" alt="ADXl345 Example I2C Write Command" title="I2C Write Command">
 
-2. This sensor doesn't need any time inbetween the I2C write and read commands to process the user's request.  Therefore, when we are reading data from the device we can use the function calls to write and then immediately read back data from the device.
+2. This sensor doesn't need any time inbetween the I2C write and read commands to process the user's request. Therefore, when we are reading data from the device we can use the function calls to write and then immediately read back data from the device.
