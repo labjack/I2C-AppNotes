@@ -14,7 +14,11 @@ classdef I2C_Options
 			obj.enable_clock_stretching = enable_clock_stretching;
 		end
 		function options_val=calculate(obj)
+			% This function calculates the options integer that needs to get
+			% passed to the UD Library to configure the LabJack's I2C bus.
 			options_val = 0;
+
+			% These conditional statements build the options bitmask.
 			if obj.reset_at_start
 				options_val = options_val + 1;
 			end

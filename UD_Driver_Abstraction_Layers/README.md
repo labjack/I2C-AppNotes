@@ -4,7 +4,7 @@ These are the available I2C abstraction layers.  These are wrappers on the avail
 ## Troubleshooting
 If you are experiencing issues getting started with any of these wrappers you should start with the basic device examples found in these example code libraries.
 
-## Supported Devices:
+## Supported Devices
 <a href="https://labjack.com/products/u3"><img src="https://labjack.com/sites/default/files/U3HV_white_shadow.JPG" width="100px" height="75px" alt="LabJack U3-LV/U3-HV USB DAQ Device" title="U3"></a>
 <a href="https://labjack.com/products/u6"><img src="https://labjack.com/sites/default/files/U6_0.jpg" width="100px" height="75px" alt="LabJack U6/U6-Pro USB DAQ Device" title="U6"></a>
 <a href="https://labjack.com/products/ue9"><img src="https://labjack.com/sites/default/files/UE9.JPG" width="100px" height="75px" alt="LabJack UE9/UE9-Pro USB and Ethernet DAQ Device" title="UE9"></a>
