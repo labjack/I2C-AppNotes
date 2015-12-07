@@ -5,7 +5,7 @@ This is a git repository for LabJack's I2C driver/library wrappers and sensor sp
 This repository contains code that requires the LabJack [LJM Library](https://labjack.com/support/software/installers/ljm) or the LabJack [UD Library/Driver](https://labjack.com/support/software/installers/ud) to already be installed.  In some cases there are further requirements such as a languages driver wrapper.  These can be found on LabJack's [Example Code/Wrappers](https://labjack.com/support/software/examples) webpage.
 
 ## Driver Documentation
-Documentation for the LJM and UD libraries can be found below:
+Documentation for the LJM and UD libraries that are heavily used in these examples and I2C wrappers can be found below:
 * [LJM Library Docs](https://labjack.com/support/software/api/ljm)
 * [UD Library Docs](https://labjack.com/support/software/installers/ud)
 
