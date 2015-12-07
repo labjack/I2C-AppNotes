@@ -9,24 +9,13 @@ classdef I2C_Utils
 		options % The integer used for I2C Options
 		speed_adj % The speed adjust
 
-		% Begin properties for eAddGoGet command
-		Handle
-		NumRequests
-		aIOTypes
-		aChannels
-		aValues
-		ax1s
-		aRequestErrors
-		GoError
-		aResultErrors
-		% End
+		enable_debug % A variable that can be set to true to print out debugging data
 	end
 
 	methods
 		function obj=I2C_Utils(ljud, handle)
 			obj.ljud = ljud;
 			obj.handle = handle;
-			disp('Constructor...');
 		end
 		function configure(obj)
 			shifted_address = bitshift(obj.slave_address, 1);
@@ -57,17 +46,22 @@ classdef I2C_Utils
 			channel = LabJack.LabJackUD.CHANNEL.I2C_SPEED_ADJUST;
 			obj.ljud.ePut(obj.handle, ioType, channel, speed_adj, 0);
 
-			disp('Configured I2C');
+			% Finished configuring the LabJack's I2C Bus
+			if obj.enable_debug
+				disp('Configured I2C Bus');
+			end
 		end
 
 		function read(obj, numBytesToRead)
+			disp('Function not tested!');
 		end
 		function write(obj, userWriteData)
+			disp('Function not tested!');
 		end
 		function [numAcks] = writeAndGetAcks(obj, userWriteData)
+			disp('Function not tested!');
 			ioType = LabJack.LabJackUD.IO.I2C_COMMUNICATION;
 			channel = LabJack.LabJackUD.CHANNEL.I2C_WRITE;
-			disp('Loading Data...');
 			numWrite = length(userWriteData);
 			writeData = NET.createArray('System.Byte', numWrite);
 
@@ -75,7 +69,6 @@ classdef I2C_Utils
 			for n=1:numWrite
 				writeData(n) = userWriteData(n);
 			end
-			disp('Writing Data...');
 			obj.ljud.AddRequestPtr(obj.handle, ioType, channel, numWrite, writeData, 0);
 
 			numAcks = 0;
@@ -85,11 +78,11 @@ classdef I2C_Utils
 			% Executge the I2C Write Request
 			obj.ljud.GoOne(obj.handle);
 
-			disp('Reporting Data');
 			[ljerror, numAcks] = obj.ljud.GetResult(obj.handle, ioType, channel, 0)
 
 		end
 		function writeAndRead(obj, userWriteData, numBytesToRead)
+			disp('Function not tested!');
 		end
 		function [numAcks,readData]=writeGetAcksAndRead(obj, userWriteData, numBytesToRead)
 			% Define variables needed for this operation
@@ -124,8 +117,18 @@ classdef I2C_Utils
 			[ljerror, repAcks] = obj.ljud.GetResult(obj.handle, ioType, channel, 0);
 			numAcks = repAcks;
 
+			% Print out debugging info
+			if obj.enable_debug
+				numAcks
+				readData
+				disp('Indexing through data...');
+			end
+
 			for n=1:numBytesToRead
 				readData(n) = rawReadData(n);
+				if obj.enable_debug
+					dataByte = dec2hex(readData(n))
+				end
 			end
 		end
 	end

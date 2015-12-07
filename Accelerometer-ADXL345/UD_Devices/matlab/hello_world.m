@@ -13,21 +13,24 @@ function result = hello_world()
 	%Open the first found LabJack U6.
 	[ljerror, ljhandle] = ljudObj.OpenLabJack(LabJack.LabJackUD.DEVICE.U6,LabJack.LabJackUD.CONNECTION.USB,'0',true,0);
 	
+	if not(ljerror == 0)
+		disp('Failed to open U6');
+		ljerror
+	end
 	%Print the ljhandle and ljerror variables.
-	ljhandle
-	ljerror
+	% ljhandle
+	% ljerror
 
-	% Define d variable for the I2C Utility
+	% Initialize the I2C Utility.
 	i2cUtils = I2C_Utils(ljudObj, ljhandle);
-	
-	
+	i2cUtils.enable_debug = false;
 
 	% Define variables for various I2C attributes.
 	i2cUtils.slave_address = hex2dec('53');
 	i2cUtils.sda_num = 6;
 	i2cUtils.scl_num = 7;
 	% Define a variable for the I2C Options (clock stretching etc.)
-	i2cUtils.options = I2C_Options(true, false, false);
+	i2cUtils.options = I2C_Options(false, false, false);
 	i2cUtils.speed_adj = 0;
 
 	% Configure the LabJack's I2C Bus
@@ -37,7 +40,7 @@ function result = hello_world()
 	% Read the data stored in the DEVID register & retrieve the number of
 	% received acks.
 	writeData = [0];
-	[numAcks, readData] = i2cUtils.writeGetAcksAndRead(writeData, 1)
+	[numAcks, readData] = i2cUtils.writeGetAcksAndRead(writeData, 1);
 
 	% Print out the DEVID register result.
 	disp('DEVID Result:');
