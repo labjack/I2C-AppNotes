@@ -17,12 +17,12 @@ There is a lot of useful information in each of the devices datasheets relating 
 
 ## I2C Related High-Level Driver Reference
 There are some useful code snippits provided on on the devices I2C Serial Communication pages found in their datasheets.
-* [U3 Datasheet](https://labjack.com/support/datasheets/u3/high-level-driver/example-pseudocode/i2c)
-* [U6 Datasheet](https://labjack.com/support/datasheets/u6/high-level-driver/example-pseudocode/i2c)
-* [UE9 Datasheet](https://labjack.com/support/datasheets/ue9/high-level-driver/example-pseudocode/i2c)
+* [U3 High-Level Driver Reference](https://labjack.com/support/datasheets/u3/high-level-driver/example-pseudocode/i2c)
+* [U6 High-Level Driver Reference](https://labjack.com/support/datasheets/u6/high-level-driver/example-pseudocode/i2c)
+* [UE9 High-Level Driver Reference](https://labjack.com/support/datasheets/ue9/high-level-driver/example-pseudocode/i2c)
 
 ## I2C Related Low-Level Functions
 There are some useful code snippits provided on on the devices Low-Level Functions/I2C pages found in their datasheets.
-* [U3 Datasheet](https://labjack.com/support/datasheets/u3/low-level-function-reference/i2c)
-* [U6 Datasheet](https://labjack.com/support/datasheets/u6/low-level-function-reference/i2c)
-* [UE9 Datasheet](https://labjack.com/support/datasheets/ue9/low-level-function-reference/control-functions/i2c)
+* [U3 Low-Level Function Reference](https://labjack.com/support/datasheets/u3/low-level-function-reference/i2c)
+* [U6 Low-Level Function Reference](https://labjack.com/support/datasheets/u6/low-level-function-reference/i2c)
+* [UE9 Low-Level Function Reference](https://labjack.com/support/datasheets/ue9/low-level-function-reference/control-functions/i2c)
