@@ -1,0 +1,1 @@
+The 7-bit slave address for the BMP180 sensor (according to page 20 of the datasheet) is 0x77.  Shifted over the address is 0xEE.
