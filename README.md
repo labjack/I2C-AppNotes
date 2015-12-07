@@ -3,8 +3,8 @@ This is a repository for LabJacks I2C app-notes.
 
 
 ##Directory Structure
-* The [UD_Driver_Abstraction_Layers]() folder contains language specific I2C wrappers that use the UD driver and are therefore compatible with the U3, U6, and UE9.
-* The [LJM_Library_Abstraction_Layers]() folder contains language specific I2C wrappers that use the LJM driver and are therefore compatible with the T7.
+* The [UD_Driver_Abstraction_Layers](https://github.com/labjack/I2C-AppNotes/tree/master/UD_Driver_Abstraction_Layers) folder contains language specific I2C wrappers that use the UD driver and are therefore compatible with the U3, U6, and UE9.
+* The [LJM_Library_Abstraction_Layers](https://github.com/labjack/I2C-AppNotes/tree/master/LJM_Library_Abstraction_Layers) folder contains language specific I2C wrappers that use the LJM driver and are therefore compatible with the T7.
 * There are several sensors with example data.
 
 ## UD Driver I2C Wrappers
@@ -19,7 +19,6 @@ This is a repository for LabJacks I2C app-notes.
 
 ## LJM Driver I2C Wrappers
 ###Supported Devices:
-These I2C wrappers target the following LabJack Devices:
 <a href="https://labjack.com/products/t7"><img src="https://labjack.com/sites/default/files/T7-Pro_USB_Ethernet_WiFi_DAQ_Device.JPG" width="100px" height="75px" alt="LabJack T7/T7-Pro USB Ethernet, and WiFi DAQ Device" title="T7"></a>
 ###Available Wrappers:
 * None Yet...
