@@ -2,8 +2,8 @@ These MATLAb .m files abstract the direct usage of LabJacks UD Library that is u
 
 These MATLAB .m files were created in MATLAB 2009a and may not be applicable to earlier or later versions of MATLAB.  See LabJack's [MATLAB Examples](https://labjack.com/support/software/examples/ud/matlab) page for more details.
 
-## Usage
-For more usage details and example code look in the sensor directories and look at the LabJack's available [MATLAB Examples](https://labjack.com/support/software/examples/ud/matlab).
+## Using the MATLAB I2C Abstraction Layer
+The example code snippits below outline how to use the I2C Abstraction layer for MATLAB.  For more usage details and example code look in the sensor directories and look at the LabJack's available [MATLAB Examples](https://labjack.com/support/software/examples/ud/matlab).
 
 ### Including the LJUD Library & Opening a Device.
 ```matlab
