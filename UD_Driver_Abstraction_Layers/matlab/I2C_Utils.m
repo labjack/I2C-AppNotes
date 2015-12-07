@@ -14,6 +14,8 @@ classdef I2C_Utils
 
 	methods
 		function obj=I2C_Utils(ljud, handle)
+			% Save references to the ljud driver and the handle to the currently
+			% open device.
 			obj.ljud = ljud;
 			obj.handle = handle;
 		end

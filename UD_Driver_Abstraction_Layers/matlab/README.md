@@ -1,0 +1,3 @@
+These MATLAb .m files abstract the direct usage of LabJacks UD Library that is used to communicate with the U3, U6, and UE9 devices when using the devices I2C functionality.  These files don't require that you have previously downloaded the available [MATLAB Examples](https://labjack.com/support/software/examples/ud/matlab) however it is highly recomended to download and try the basic MATLAB examples first.  I2C is an advanced feature and is harder to debug than many of the other LabJack device features.
+
+These MATLAB .m files were created in MATLAB 2009a and may not be applicable to earlier or later versions of MATLAB.  See LabJack's [MATLAB Examples](https://labjack.com/support/software/examples/ud/matlab) page for more details.
