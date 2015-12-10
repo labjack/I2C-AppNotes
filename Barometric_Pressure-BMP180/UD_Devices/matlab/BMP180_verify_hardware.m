@@ -32,7 +32,10 @@ function result = BMP180_verify_hardware()
 		i2cUtils.slave_address = hex2dec('77');
 		i2cUtils.sda_num = 6;
 		i2cUtils.scl_num = 7;
-		% Define a variable for the I2C Options (clock stretching etc.)
+		% Define a variable for the I2C Options:
+		%   1. reset_at_start
+		%   2. no_stop_when_restarting
+		%   3. enable_clock_stretching
 		i2cUtils.options = I2C_Options(false, false, false);
 		i2cUtils.speed_adj = 0;
 
@@ -59,7 +62,7 @@ function result = BMP180_verify_hardware()
 		else
 			disp('BMP180 is not properly connected.');
 			disp(strcat('Num acks received:', num2str(numAcks)));
-			disp(strcat('Chip-id Result: 0x', num2str(dec2hex(chipID)), ' it should be 0x55'));
+			disp(strcat('Chip-id Result: 0x', num2str(dec2hex(chipID)), ' it should be 0x55 according to page 18 of the datasheet.'));
 			result = false;
 		end
 

@@ -32,7 +32,10 @@ function result = ADXL345_verify_hardware()
 		i2cUtils.slave_address = hex2dec('53');
 		i2cUtils.sda_num = 6;
 		i2cUtils.scl_num = 7;
-		% Define a variable for the I2C Options (clock stretching etc.)
+		% Define a variable for the I2C Options:
+		%   1. reset_at_start
+		%   2. no_stop_when_restarting
+		%   3. enable_clock_stretching
 		i2cUtils.options = I2C_Options(false, false, false);
 		i2cUtils.speed_adj = 0;
 
