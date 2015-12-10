@@ -1,23 +1,19 @@
 function result = ADXL345_verify_hardware()
-	%This function is designed to verify that the the ADXL345 acceelrometer is
+	% This function is designed to verify that the the ADXL345 acceelrometer is
 	% properly connected to the LabJack device.  Essentially, it reads the DEVID
 	% register from the I2C sensor and makes sure that it received the proper
 	% number of ack bits.
 
 	try
-		clc %Clear the MATLAB command window
-		clear %Clear the MATLAB variables
+		clc % Clear the MATLAB command window
+		clear % Clear the MATLAB variables
 
-		%Make the UD .NET assembly visible in MATLAB
+		% Make the UD .NET assembly visible in MATLAB
 		ljasm = NET.addAssembly('LJUDDotNet');
 		ljudObj = LabJack.LabJackUD.LJUD;
 
-		%Open the first found LabJack U6.
+		% Open the first found LabJack U6.
 		[ljerror, ljhandle] = ljudObj.OpenLabJack(LabJack.LabJackUD.DEVICE.U6,LabJack.LabJackUD.CONNECTION.USB,'0',true,0);
-		
-		%Print the ljhandle and ljerror variables.
-		% ljhandle
-		% ljerror
 
 		% Initialize the I2C Utility.
 		i2cUtils = I2C_Utils(ljudObj, ljhandle);
@@ -53,7 +49,7 @@ function result = ADXL345_verify_hardware()
 			result = false;
 		end
 
-		%Close the device
+		% Close the device
 		ljudObj.Close();
 
 	catch e
