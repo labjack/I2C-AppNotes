@@ -1,7 +1,8 @@
-classdef I2C_Utils
+classdef LJM_I2C_Utils
 	% LabJack I2C Utilities Object
 	properties
-		ljud % LabJack UD Driver reference
+		ljm % LabJack LJM Library reference
+		constants % LJM Library's constants.
 		handle % The handle to the open LabJack device.
 		slave_address % 7-bit I2C Slave Address
 		sda_num % The SDA pin number
@@ -13,17 +14,16 @@ classdef I2C_Utils
 	end
 
 	methods
-		function obj=I2C_Utils(ljud, handle)
-			% Save references to the ljud driver and the handle to the currently
+		function obj=LJM_I2C_Utils(ljm, ljm_constants, handle)
+			% Save references to the ljm library and the handle to the currently
 			% open device.
-			obj.ljud = ljud;
+			obj.ljm = ljm;
+			obj.constants = ljm_constants;
 			obj.handle = handle;
 		end
 		function configure(obj)
-			% Shift the 7-bit slave address to the left one bit to make an 8-bit
-			% address where the last bit can be toggled to indicate read vs
-			% write I2C commands.
-			shifted_address = bitshift(obj.slave_address, 1);
+			% The T7 requires an un-shifted 7-bit slave address.
+			slave_address = obj.slave_address;
 
 			% Retrieve various I2C configuration parameters.
 			sda_num = obj.sda_num;
@@ -31,28 +31,20 @@ classdef I2C_Utils
 			options = obj.options.calculate();
 			speed_adj = obj.speed_adj;
 
-			% All of the function calls are using this ioType.
-			ioType = LabJack.LabJackUD.IO.PUT_CONFIG;
-
 			% Configure the I2C slave address
-			channel = LabJack.LabJackUD.CHANNEL.I2C_ADDRESS_BYTE;
-			obj.ljud.ePut(obj.handle, ioType, channel, shifted_address, 0);
-
+			obj.ljm.eWriteName(obj.handle, 'I2C_SLAVE_ADDRESS', slave_address);
+			
 			% Configure the SDA pin number
-			channel = LabJack.LabJackUD.CHANNEL.I2C_SDA_PIN_NUM;
-			obj.ljud.ePut(obj.handle, ioType, channel, sda_num, 0);
+			obj.ljm.eWriteName(obj.handle, 'I2C_SDA_DIONUM', sda_num);
 
 			% Configure the SCL pin number
-			channel = LabJack.LabJackUD.CHANNEL.I2C_SCL_PIN_NUM;
-			obj.ljud.ePut(obj.handle, ioType, channel, scl_num, 0);
+			obj.ljm.eWriteName(obj.handle, 'I2C_SCL_DIONUM', scl_num);
 
 			% Configure the I2C Options
-			channel = LabJack.LabJackUD.CHANNEL.I2C_OPTIONS;
-			obj.ljud.ePut(obj.handle, ioType, channel, options, 0);
+			obj.ljm.eWriteName(obj.handle, 'I2C_OPTIONS', options);
 
 			% Configure the I2C bus speed
-			channel = LabJack.LabJackUD.CHANNEL.I2C_SPEED_ADJUST;
-			obj.ljud.ePut(obj.handle, ioType, channel, speed_adj, 0);
+			obj.ljm.eWriteName(obj.handle, 'I2C_SPEED_THROTTLE', speed_adj);
 
 			% Finished configuring the LabJack's I2C Bus
 			if obj.enable_debug
@@ -64,6 +56,7 @@ classdef I2C_Utils
 			% Define variables needed for this operation
 			rawReadData = NET.createArray('System.Byte', numBytesToRead);
 			readData = uint8.empty(0, numBytesToRead);
+			numBytesToWrite = 0;
 			
 			% Save the ioType being used in a shorter variable name.
 			ioType = LabJack.LabJackUD.IO.I2C_COMMUNICATION;
@@ -191,36 +184,48 @@ classdef I2C_Utils
 		function [numAcks, readData]=writeGetAcksAndRead(obj, userWriteData, numBytesToRead)
 			% Define variables needed for this operation
 			numWrite = length(userWriteData);
-			writeData = NET.createArray('System.Byte', numWrite);
-			rawReadData = NET.createArray('System.Byte', numBytesToRead);
+			writeData = NET.createArray('System.Double', numWrite);
+			rawReadData = NET.createArray('System.Double', numBytesToRead);
 			readData = uint8.empty(0, numBytesToRead);
+
+			% Define some arrays required to use LJM
+			aNames = NET.createArray('System.String', 1);
+			aWrites = NET.createArray('System.Int32', 1);
+			aNumValues = NET.createArray('System.Int32', 1);
 
 			% Transfer the user's values into the byte array.
 			for n=1:numWrite
 				writeData(n) = userWriteData(n);
 			end
+
+			% Clear the rawReadData array
+			for n=1:numBytesToRead
+				rawReadData(n) = 0;
+			end
 			
-			% Save the ioType being used in a shorter variable name.
-			ioType = LabJack.LabJackUD.IO.I2C_COMMUNICATION;
+			% Configure the number of bytes need to be written.
+			obj.ljm.eWriteName(obj.handle, 'I2C_NUM_BYTES_TX', numWrite);
 
-			% Add an I2C write request
-			channel = LabJack.LabJackUD.CHANNEL.I2C_WRITE;
-			obj.ljud.AddRequestPtr(obj.handle, ioType, channel, numWrite, writeData, 0);
+			% Configure the number of bytes that need to be read.
+			obj.ljm.eWriteName(obj.handle, 'I2C_NUM_BYTES_RX', numBytesToRead);
 
-			% Add an I2C Get-Acks request
-			numAcks = 0;
-			channel = LabJack.LabJackUD.CHANNEL.I2C_GET_ACKS;
-			obj.ljud.AddRequest(obj.handle, ioType, channel, numAcks, 0, 0);
+			% Send the data that needs to be written to the device.
+			aNames(1) = 'I2C_WRITE_DATA';
+			aWrites(1) = obj.constants.WRITE;
+			aNumValues(1) = numWrite;
+			obj.ljm.eNames(obj.handle, 1, aNames, aWrites, aNumValues, writeData, 0);
 
-			% Add an I2C read request
-			channel = LabJack.LabJackUD.CHANNEL.I2C_READ;
-			obj.ljud.AddRequestPtr(obj.handle, ioType, channel, numBytesToRead, rawReadData, 0);
-			
-			% Execute the I2C Write, GetAcks, and Read Request
-			obj.ljud.GoOne(obj.handle);
+			% Perform the I2C request
+			obj.ljm.eWriteName(obj.handle, 'I2C_GO', 1);
 
-			% Get the number of ack bits received during the read request.
-			[ljerror, numAcks] = obj.ljud.GetResult(obj.handle, ioType, channel, 0);
+			% Get the data that was read during the read-segment of the I2C command.
+			aNames(1) = 'I2C_READ_DATA';
+			aWrites(1) = obj.constants.READ;
+			aNumValues(1) = numBytesToRead;
+			obj.ljm.eNames(obj.handle, 1, aNames, aWrites, aNumValues, rawReadData, 0);
+
+			% Get the num acks that were received.
+			[ljmError, numAcks] = obj.ljm.eReadName(obj.handle, 'I2C_ACKS', 0);
 
 			% Print out debugging info
 			if obj.enable_debug

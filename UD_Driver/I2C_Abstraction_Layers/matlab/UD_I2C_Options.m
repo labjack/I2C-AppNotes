@@ -1,4 +1,4 @@
-classdef I2C_Options
+classdef UD_I2C_Options
 	% LabJack I2C Configuration options
 	properties
 		% https://labjack.com/support/datasheets/u6/low-level-function-reference/i2c
@@ -8,7 +8,7 @@ classdef I2C_Options
 	end
 
 	methods
-		function obj=I2C_Options(reset_at_start, no_stop_when_restarting, enable_clock_stretching)
+		function obj=UD_I2C_Options(reset_at_start, no_stop_when_restarting, enable_clock_stretching)
 			obj.reset_at_start = reset_at_start;
 			obj.no_stop_when_restarting = no_stop_when_restarting;
 			obj.enable_clock_stretching = enable_clock_stretching;
@@ -20,14 +20,15 @@ classdef I2C_Options
 
 			% These conditional statements build the options bitmask.
 			if obj.reset_at_start
-				options_val = options_val + 1;
-			end
-			if obj.no_stop_when_restarting
 				options_val = options_val + 2;
 			end
-			if obj.enable_clock_stretching
+			if obj.no_stop_when_restarting
 				options_val = options_val + 4;
 			end
+			if obj.enable_clock_stretching
+				options_val = options_val + 8;
+			end
+			disp(options_val);
 		end
 	end
 end
