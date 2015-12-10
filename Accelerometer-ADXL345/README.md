@@ -36,7 +36,7 @@ This I2C example is directed toward the [Sparkfun ADXL345 Accelerometer](https:/
   
   The sensor supports single and multi-byte reads/writes.  One important thing to keep in mind is what happens when trying to read data.  Look at the "Single-Byte Read" command.  Inbetween the write and read commands there is a "Start 1" block indicating that there needs to be either a restart or a stop followed by a start.  These diagrams indicate that we don't need to enable the I2C settings: 
   1. Reset at start
-  2. No top when restarting
+  2. No stop when restarting
   3. Enable clock stretching
 
 5. We don't need to adjust the I2C clock speed because the sensor supports up to 400kHz data transfer modes.
