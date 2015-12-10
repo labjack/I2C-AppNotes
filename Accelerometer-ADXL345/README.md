@@ -2,17 +2,21 @@
 This I2C example is directed toward the [Sparkfun ADXL345 Accelerometer](https://www.sparkfun.com/products/9836)
 
 <a href="https://www.sparkfun.com/products/9836"><img src="https://cdn.sparkfun.com/assets/parts/3/9/0/2/09836-_01c.jpg" width="213.75px" height="213.75px" alt="Sparkfun ADXL345 Accelerometer" title="Sparkfun ADXL345 Accelerometer"></a>
-##Directory Structure
-* [language_name]-utils Directories:  
-  These folders contain sensor-specific code that provide helpful tools for collecting and parsing data from the ADXL345 sensor.
-* [UD_Devices](https://github.com/labjack/I2C-AppNotes/tree/master/Accelerometer-ADXL345/UD_Devices) Directory:  
-  This directory contains the examples for the ADXL345 Accelerometer implemented in a variety of languages targeting the following LabJack devices:
+## Directory Structure
+* [utils](https://github.com/labjack/I2C-AppNotes/tree/master/Accelerometer-ADXL345/utils) Directory:
+  This folder contains language specific utilities to assist in collecting or parsing data from the ADXL345 sensor.
 
+## Example Code:
+* Example code for the ADXL345 Accelerometer that works for the UD devices:
   <a href="https://labjack.com/products/u3"><img src="https://labjack.com/sites/default/files/U3HV_white_shadow.JPG" width="100px" height="75px" alt="LabJack U3-LV/U3-HV USB DAQ Device" title="U3"></a>
   <a href="https://labjack.com/products/u6"><img src="https://labjack.com/sites/default/files/U6_0.jpg" width="100px" height="75px" alt="LabJack U6/U6-Pro USB DAQ Device" title="U6"></a>
   <a href="https://labjack.com/products/ue9"><img src="https://labjack.com/sites/default/files/UE9.JPG" width="100px" height="75px" alt="LabJack UE9/UE9-Pro USB and Ethernet DAQ Device" title="UE9"></a>
+   can be found in the [/UD_Driver/Accelerometer-ADXL345](https://github.com/labjack/I2C-AppNotes/tree/master/UD_Driver/Accelerometer-ADXL345) directory.
+* Example code for the ADXL345 Accelerometer that works for compatible LJM devices:
+  <a href="https://labjack.com/products/t7"><img src="https://labjack.com/sites/default/files/T7-Pro_USB_Ethernet_WiFi_DAQ_Device.JPG" width="100px" height="75px" alt="LabJack T7/T7-Pro USB, Ethernet, and WiFi DAQ Device" title="T7"></a>
+  can be found in the [/LJM_Library/Accelerometer-ADXL345](https://github.com/labjack/I2C-AppNotes/tree/master/LJM_Library/Accelerometer-ADXL345) directory.
 
-##Connecting the Sensor:
+## Connecting the Sensor:
 1. This sensor requires a 2.0V to 3.6V supply voltage so we will use LabJacks LJTick-LVDigitalIO tick with the switch selecting the 3.3V logic level.
   
   <a href="https://labjack.com/accessories/ljtick-lvdigitalio"><img src="https://labjack.com/sites/default/files/LJTick-LVDigitalIO_1_white.JPG" width="100px" height="75px" alt="LJTick-LVDigitalIO" title="LJTick-LVDigitalIO"></a>

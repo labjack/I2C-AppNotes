@@ -1,19 +1,21 @@
-The 7-bit slave address for the BMP180 sensor (according to page 20 of the datasheet) is 0x77.  Shifted over the address is 0xEE.
-
 ##BMP180 Barometric Pressure Sensor - I2C Mode
 This I2C example is directed toward the [Sparkfun BMP180 Barometric Pressure Sensor Breakout](https://www.sparkfun.com/products/11824).
 
 <a href="https://www.sparkfun.com/products/11824"><img src="https://cdn.sparkfun.com//assets/parts/8/1/8/0/11824-01.jpg" width="213.75px" height="213.75px" alt="Sparkfun BMP180 Barometric Pressure Sensor Breakout" title="Sparkfun BMP180 Barometric Pressure Sensor Breakout"></a>
 
-##Directory Structure
-* [language_name]-utils Directories:  
-  These folders contain sensor-specific code that provide helpful tools for collecting and parsing data from the BMP180 sensor.
-* [UD_Devices](https://github.com/labjack/I2C-AppNotes/tree/master/Batometric_Pressure-BMP180/UD_Devices) Directory:  
-  This directory contains the examples for the BMP180 Barometric Pressure sensor implemented in a variety of languages targeting the following LabJack devices:
+## Directory Structure
+* [utils](https://github.com/labjack/I2C-AppNotes/tree/master/Accelerometer-ADXL345/utils) Directory:
+  This folder contains language specific utilities to assist in collecting or parsing data from the BMP180 sensor.
 
+## Example Code:
+* Example code for the BMP180 Barometric Pressure Sensor that works for the UD devices:
   <a href="https://labjack.com/products/u3"><img src="https://labjack.com/sites/default/files/U3HV_white_shadow.JPG" width="100px" height="75px" alt="LabJack U3-LV/U3-HV USB DAQ Device" title="U3"></a>
   <a href="https://labjack.com/products/u6"><img src="https://labjack.com/sites/default/files/U6_0.jpg" width="100px" height="75px" alt="LabJack U6/U6-Pro USB DAQ Device" title="U6"></a>
   <a href="https://labjack.com/products/ue9"><img src="https://labjack.com/sites/default/files/UE9.JPG" width="100px" height="75px" alt="LabJack UE9/UE9-Pro USB and Ethernet DAQ Device" title="UE9"></a>
+   can be found in the [/UD_Driver/Barometric_Pressure-BMP180](https://github.com/labjack/I2C-AppNotes/tree/master/UD_Driver/Barometric_Pressure-BMP180) directory.
+* Example code for the BMP180 Barometric Pressure Sensor that works for compatible LJM devices:
+  <a href="https://labjack.com/products/t7"><img src="https://labjack.com/sites/default/files/T7-Pro_USB_Ethernet_WiFi_DAQ_Device.JPG" width="100px" height="75px" alt="LabJack T7/T7-Pro USB, Ethernet, and WiFi DAQ Device" title="T7"></a>
+  can be found in the [/LJM_Library/Barometric_Pressure-BMP180](https://github.com/labjack/I2C-AppNotes/tree/master/LJM_Library/Barometric_Pressure-BMP180) directory.
 
 ##Connecting the Sensor:
 1. This sensor requires a 1.8V to 3.6V supply voltage so we will use LabJacks LJTick-LVDigitalIO tick with the switch selecting the 3.3V logic level.
