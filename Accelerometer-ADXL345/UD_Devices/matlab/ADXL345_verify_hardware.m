@@ -12,8 +12,17 @@ function result = ADXL345_verify_hardware()
 		ljasm = NET.addAssembly('LJUDDotNet');
 		ljudObj = LabJack.LabJackUD.LJUD;
 
+		% Open the first found LabJack U3.
+		% disp('Opening U3');
+		% [ljerror, ljhandle] = ljudObj.OpenLabJack(LabJack.LabJackUD.DEVICE.U3,LabJack.LabJackUD.CONNECTION.USB,'0',true,0);
+
 		% Open the first found LabJack U6.
+		disp('Opening U6');
 		[ljerror, ljhandle] = ljudObj.OpenLabJack(LabJack.LabJackUD.DEVICE.U6,LabJack.LabJackUD.CONNECTION.USB,'0',true,0);
+
+		% Open the first found LabJack UE9.
+		% disp('Opening UE9');
+		% [ljerror, ljhandle] = ljudObj.OpenLabJack(LabJack.LabJackUD.DEVICE.UE9,LabJack.LabJackUD.CONNECTION.USB,'0',true,0);		
 
 		% Initialize the I2C Utility.
 		i2cUtils = I2C_Utils(ljudObj, ljhandle);
