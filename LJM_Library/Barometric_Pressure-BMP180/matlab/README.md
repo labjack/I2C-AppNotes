@@ -1,5 +1,8 @@
 ## Getting Started:
-1. Add the I2C-AppNotes root directory to your path using matlabs [pathtool](http://www.mathworks.com/help/matlab/ref/pathtool.html).
+1. Add the I2C-AppNotes root directory to your path using matlabs [pathtool](http://www.mathworks.com/help/matlab/ref/pathtool.html).  In MATLAB's command window type:
+  ```matlab
+  pathtool
+  ```
 
 2. Configure what device is going to be opened:
 
@@ -11,7 +14,7 @@
   ```
 
 3. Run the "verify_hardware" script:
-  From matlab's command window type
+  In MATLAB's command window type:
 
   ```matlab
   LJM_BMP180_verify_hardware()
@@ -29,7 +32,7 @@
   ```
 
 4. Run the "demo" script:
-  From matlab's command window type:
+  In MATLAB's command window type:
   ```matlab
   LJM_BMP180_demo()
   ```
