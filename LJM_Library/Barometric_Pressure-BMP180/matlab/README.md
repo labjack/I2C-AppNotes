@@ -1,10 +1,11 @@
 ## Getting Started:
-1. Add the I2C-AppNotes root directory to your path using matlabs [pathtool](http://www.mathworks.com/help/matlab/ref/pathtool.html).  In MATLAB's command window type:
+1. Clone, Fork, or [download](https://github.com/labjack/I2C-AppNotes/archive/master.zip) and extract the I2C-AppNotes git repository.
+2. Add the I2C-AppNotes root directory to your path using matlabs [pathtool](http://www.mathworks.com/help/matlab/ref/pathtool.html).  In MATLAB's command window type:
   ```matlab
   pathtool
   ```
 
-2. Configure what device is going to be opened:
+3. Configure what device is going to be opened:
 
   ```matlab
   %Open first found LabJack
@@ -13,7 +14,7 @@
   showDeviceInfo(ljhandle);
   ```
 
-3. Run the "verify_hardware" script:
+4. Run the "verify_hardware" script:
   In MATLAB's command window type:
 
   ```matlab
@@ -31,7 +32,7 @@
   Chip-id Result: 0x55
   ```
 
-4. Run the "demo" script:
+5. Run the "demo" script:
   In MATLAB's command window type:
   ```matlab
   LJM_BMP180_demo()
