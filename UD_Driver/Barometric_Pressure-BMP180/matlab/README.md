@@ -5,7 +5,7 @@
   pathtool
   ```
 
-3. Configure what device is going to be opened:
+3. Edit the UD_BMP180_verify_hardware.m and UD_BMP180_demo.m files to configure what device is going to be opened:
 
   ```matlab
   % Open the first found LabJack U3.
