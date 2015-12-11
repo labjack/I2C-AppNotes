@@ -239,7 +239,7 @@ classdef UD_I2C_Utils
 			for n=1:numWrite
 				writeData(n) = userWriteData(n);
 			end
-			
+
 			% Save the ioType being used in a shorter variable name.
 			ioType = LabJack.LabJackUD.IO.I2C_COMMUNICATION;
 

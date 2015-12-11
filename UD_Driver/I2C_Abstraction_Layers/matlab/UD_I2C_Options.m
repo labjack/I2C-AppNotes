@@ -28,7 +28,6 @@ classdef UD_I2C_Options
 			if obj.enable_clock_stretching
 				options_val = options_val + 8;
 			end
-			disp(options_val);
 		end
 	end
 end
