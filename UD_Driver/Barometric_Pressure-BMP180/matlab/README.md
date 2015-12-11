@@ -16,6 +16,7 @@
   disp('Opening UE9');
   [ljerror, ljhandle] = ljudObj.OpenLabJack(LabJack.LabJackUD.DEVICE.UE9,LabJack.LabJackUD.CONNECTION.USB,'0',true,0);
   ```
+
 3. Run the "verify_hardware" script:
   From matlab's command window type
 
@@ -25,7 +26,7 @@
 
   The response should be:
 
-  ```matlab
+  ```
   Opening U6
   BMP180 is properly connected for I2C communication.
   Num acks received:1
@@ -39,7 +40,7 @@
   ```
 
   The response should be:
-  ```matlab
+  ```
   Opening U6
   UT:20686
   UP:272168
