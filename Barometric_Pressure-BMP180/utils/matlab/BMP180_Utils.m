@@ -4,12 +4,16 @@ classdef BMP180_Utils
 		i2cUtils % A reference to the I2C Utility.
 
 		calibration % A reference to the BMP180's calibration.
+		print_raw_results
+		print_calibrated_results
 	end
 
 	methods
 		function obj=BMP180_Utils(i2cUtils)
 			% Save the reference to the initialized I2C Utility.
 			obj.i2cUtils = i2cUtils;
+			obj.print_raw_results = false;
+			obj.print_calibrated_results = false;
 		end
 		function [hardwareInstalled]=verify_hardware(obj)
 			% Write one byte of data (setting the read-pointer to be the Chip-id 
@@ -75,7 +79,10 @@ classdef BMP180_Utils
 			% disp(strcat('LSB:', num2str(readData(2))));
 
 			UT = int32(bitor(bitshift(MSB,8), LSB));
-			disp(strcat('UT:', num2str(UT)));
+			
+			if obj.print_raw_results
+				disp(strcat('UT:', num2str(UT)));
+			end
 		end
 
 		function UP = read_raw_pressure(obj, cal, oss)
@@ -122,7 +129,10 @@ classdef BMP180_Utils
 			% disp(strcat('MSB:', num2str(readData(1))));
 			% disp(strcat('LSB:', num2str(readData(2))));
 			% disp(strcat('XLSB:', num2str(readData(3))));
-			disp(strcat('UP:', num2str(UP)));
+			
+			if obj.print_raw_results
+				disp(strcat('UP:', num2str(UP)));
+			end
 		end
 
 		function collect_dummy_data(obj, cal)
@@ -175,6 +185,12 @@ classdef BMP180_Utils
 			
 			% Calculate the true pressure
 			P = cal.calculatePressure(UT, UP, oss);
+
+			
+			if obj.print_calibrated_results
+				disp(strcat('Temperature:', num2str(T), 'C'));
+				disp(strcat('Pressure:', num2str(P), 'kPa'));
+			end
 		end
 	end
 end
