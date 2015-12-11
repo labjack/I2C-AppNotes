@@ -1,4 +1,4 @@
-function result = LJM_BMP180_verify_hardware()
+function result = LJM_BMP180_demo()
 	% This function is designed to verify that the the BMP180 acceelrometer is
 	% properly connected to the LabJack device.  Essentially, it reads the 
 	% Chip-id register from the I2C sensor and makes sure that it received the 
@@ -35,7 +35,7 @@ function result = LJM_BMP180_verify_hardware()
 		%   2. no_stop_when_restarting
 		%   3. disable_clock_stretching
 		i2cUtils.options = LJM_I2C_Options(false, false, false);
-		i2cUtils.speed_adj = 0;
+		i2cUtils.speed_adj = 65030;
 
 		% Configure the LabJack's I2C Bus
 		i2cUtils.configure();
@@ -44,8 +44,25 @@ function result = LJM_BMP180_verify_hardware()
 		bmp180Utils = BMP180_Utils(i2cUtils);
 
 		% Verify that the BMP180 is properly connected to the device.
-		[hardwareInstalled] = bmp180Utils.verify_hardware();
+		% [hardwareInstalled] = bmp180Utils.verify_hardware();
 		
+		% Read the BMP180's calibration data.
+		bmpCal = bmp180Utils.read_calibration();
+		% bmpCal.printCal();
+		
+		% Call a function that over-writes the calibration & performs
+		% a smoke-test on the calibration functions.
+		% bmp180Utils.collect_dummy_data(bmpCal);
+
+		% Collect & calibrate data with oss = 0
+		oss = 3;
+
+		% Enable auto-printing of results
+		bmpCal.print_results = true;
+
+		% Read and calculate the true temperature and humidity
+		[T, P] = bmp180Utils.collect_temp_and_pressure(bmpCal, oss);
+
 		% Close the device
 		LJM.Close(ljhandle);
 

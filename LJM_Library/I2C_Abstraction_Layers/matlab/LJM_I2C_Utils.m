@@ -54,19 +54,90 @@ classdef LJM_I2C_Utils
 
 		function [readData]=read(obj, numBytesToRead)
 			% Define variables needed for this operation
-			rawReadData = NET.createArray('System.Byte', numBytesToRead);
+			numWrite = 0;
+			rawReadData = NET.createArray('System.Double', numBytesToRead);
 			readData = uint8.empty(0, numBytesToRead);
-			numBytesToWrite = 0;
-			
-			% Save the ioType being used in a shorter variable name.
-			ioType = LabJack.LabJackUD.IO.I2C_COMMUNICATION;
 
-			% Add an I2C read request
-			channel = LabJack.LabJackUD.CHANNEL.I2C_READ;
-			obj.ljud.AddRequestPtr(obj.handle, ioType, channel, numBytesToRead, rawReadData, 0);
+			% Define some arrays required to use LJM
+			aNames = NET.createArray('System.String', 1);
+			aWrites = NET.createArray('System.Int32', 1);
+			aNumValues = NET.createArray('System.Int32', 1);
+
+			% Transfer the user's values into the byte array.
+			for n=1:numWrite
+				writeData(n) = userWriteData(n);
+			end
+
+			% Clear the rawReadData array
+			for n=1:numBytesToRead
+				rawReadData(n) = 0;
+			end
 			
-			% Execute the I2C Read Request
-			obj.ljud.GoOne(obj.handle);
+			% Configure the number of bytes need to be written.
+			obj.ljm.eWriteName(obj.handle, 'I2C_NUM_BYTES_TX', numWrite);
+
+			% Configure the number of bytes that need to be read.
+			obj.ljm.eWriteName(obj.handle, 'I2C_NUM_BYTES_RX', numBytesToRead);
+
+			% Perform the I2C request
+			obj.ljm.eWriteName(obj.handle, 'I2C_GO', 1);
+
+			% Get the data that was read during the read-segment of the I2C command.
+			aNames(1) = 'I2C_READ_DATA';
+			aWrites(1) = obj.constants.READ;
+			aNumValues(1) = numBytesToRead;
+			obj.ljm.eNames(obj.handle, 1, aNames, aWrites, aNumValues, rawReadData, 0);
+
+			% Print out debugging info
+			if obj.enable_debug
+				readData
+				disp('Indexing through data...');
+			end
+
+			% Transfer the data out of the NET array and into a more standard
+			% matlab array.
+			for n=1:numBytesToRead
+				readData(n) = rawReadData(n);
+
+				% If debugging is enabled print out the read data in hex format.
+				if obj.enable_debug
+					dataByte = dec2hex(readData(n))
+				end
+			end
+		end
+		function [numAcks, readData]=readAndGetAcks(obj, numBytesToRead)
+			% Define variables needed for this operation
+			numWrite = 0;
+			rawReadData = NET.createArray('System.Double', numBytesToRead);
+			readData = uint8.empty(0, numBytesToRead);
+
+			% Define some arrays required to use LJM
+			aNames = NET.createArray('System.String', 1);
+			aWrites = NET.createArray('System.Int32', 1);
+			aNumValues = NET.createArray('System.Int32', 1);
+
+			% Clear the rawReadData array
+			for n=1:numBytesToRead
+				rawReadData(n) = 0;
+			end
+			
+			% Configure the number of bytes need to be written.
+			obj.ljm.eWriteName(obj.handle, 'I2C_NUM_BYTES_TX', numWrite);
+
+			% Configure the number of bytes that need to be read.
+			obj.ljm.eWriteName(obj.handle, 'I2C_NUM_BYTES_RX', numBytesToRead);
+
+			% Perform the I2C request
+			obj.ljm.eWriteName(obj.handle, 'I2C_GO', 1);
+
+			% Get the num acks that were received.
+			[ljmError, numAcks] = obj.ljm.eReadName(obj.handle, 'I2C_ACKS', 0);
+
+			% Get the data that was read during the read-segment of the I2C command.
+			aNames(1) = 'I2C_READ_DATA';
+			aWrites(1) = obj.constants.READ;
+			aNumValues(1) = numBytesToRead;
+			obj.ljm.eNames(obj.handle, 1, aNames, aWrites, aNumValues, rawReadData, 0);
 
 			% Print out debugging info
 			if obj.enable_debug
@@ -87,53 +158,70 @@ classdef LJM_I2C_Utils
 		end
 		function write(obj, userWriteData)
 			% Define variables needed for this operation
+			numBytesToRead = 0;
 			numWrite = length(userWriteData);
-			writeData = NET.createArray('System.Byte', numWrite);
+			writeData = NET.createArray('System.Double', numWrite);
+
+			% Define some arrays required to use LJM
+			aNames = NET.createArray('System.String', 1);
+			aWrites = NET.createArray('System.Int32', 1);
+			aNumValues = NET.createArray('System.Int32', 1);
 
 			% Transfer the user's values into the byte array.
 			for n=1:numWrite
 				writeData(n) = userWriteData(n);
 			end
 			
-			% Save the ioType being used in a shorter variable name.
-			ioType = LabJack.LabJackUD.IO.I2C_COMMUNICATION;
+			% Configure the number of bytes need to be written.
+			obj.ljm.eWriteName(obj.handle, 'I2C_NUM_BYTES_TX', numWrite);
 
-			% Add an I2C write request
-			channel = LabJack.LabJackUD.CHANNEL.I2C_WRITE;
-			obj.ljud.AddRequestPtr(obj.handle, ioType, channel, numWrite, writeData, 0);
-			
-			% Execute the I2C Write Request.
-			obj.ljud.GoOne(obj.handle);
+			% Configure the number of bytes that need to be read.
+			obj.ljm.eWriteName(obj.handle, 'I2C_NUM_BYTES_RX', numBytesToRead);
+
+			% Send the data that needs to be written to the device.
+			aNames(1) = 'I2C_WRITE_DATA';
+			aWrites(1) = obj.constants.WRITE;
+			aNumValues(1) = numWrite;
+			obj.ljm.eNames(obj.handle, 1, aNames, aWrites, aNumValues, writeData, 0);
+
+			% Perform the I2C request
+			obj.ljm.eWriteName(obj.handle, 'I2C_GO', 1);
 		end
 		function [numAcks] = writeAndGetAcks(obj, userWriteData)
 			% Define variables needed for this operation
+			numBytesToRead = 0;
 			numWrite = length(userWriteData);
-			writeData = NET.createArray('System.Byte', numWrite);
+			writeData = NET.createArray('System.Double', numWrite);
+
+			% Define some arrays required to use LJM
+			aNames = NET.createArray('System.String', 1);
+			aWrites = NET.createArray('System.Int32', 1);
+			aNumValues = NET.createArray('System.Int32', 1);
 
 			% Transfer the user's values into the byte array.
 			for n=1:numWrite
 				writeData(n) = userWriteData(n);
 			end
 			
-			% Save the ioType being used in a shorter variable name.
-			ioType = LabJack.LabJackUD.IO.I2C_COMMUNICATION;
+			% Configure the number of bytes need to be written.
+			obj.ljm.eWriteName(obj.handle, 'I2C_NUM_BYTES_TX', numWrite);
 
-			% Add an I2C write request
-			channel = LabJack.LabJackUD.CHANNEL.I2C_WRITE;
-			obj.ljud.AddRequestPtr(obj.handle, ioType, channel, numWrite, writeData, 0);
+			% Configure the number of bytes that need to be read.
+			obj.ljm.eWriteName(obj.handle, 'I2C_NUM_BYTES_RX', numBytesToRead);
 
-			% Add an I2C Get-Acks request.
-			numAcks = 0;
-			channel = LabJack.LabJackUD.CHANNEL.I2C_GET_ACKS;
-			obj.ljud.AddRequest(obj.handle, ioType, channel, numAcks, 0, 0);
-			
-			% Execute the I2C Write and GetAcks Request.
-			obj.ljud.GoOne(obj.handle);
+			% Send the data that needs to be written to the device.
+			aNames(1) = 'I2C_WRITE_DATA';
+			aWrites(1) = obj.constants.WRITE;
+			aNumValues(1) = numWrite;
+			obj.ljm.eNames(obj.handle, 1, aNames, aWrites, aNumValues, writeData, 0);
 
-			% Get the number of ack bits received during the write request.
-			[ljerror, numAcks] = obj.ljud.GetResult(obj.handle, ioType, channel, 0);
+			% Perform the I2C request
+			obj.ljm.eWriteName(obj.handle, 'I2C_GO', 1);
 
-			% If debugging is enabled print out the number of received ack bits.
+			% Get the num acks that were received.
+			[ljmError, numAcks] = obj.ljm.eReadName(obj.handle, 'I2C_ACKS', 0);
+
+			% Print out debugging info
 			if obj.enable_debug
 				numAcks
 			end
@@ -141,28 +229,45 @@ classdef LJM_I2C_Utils
 		function [readData]=writeAndRead(obj, userWriteData, numBytesToRead)
 			% Define variables needed for this operation
 			numWrite = length(userWriteData);
-			writeData = NET.createArray('System.Byte', numWrite);
-			rawReadData = NET.createArray('System.Byte', numBytesToRead);
+			writeData = NET.createArray('System.Double', numWrite);
+			rawReadData = NET.createArray('System.Double', numBytesToRead);
 			readData = uint8.empty(0, numBytesToRead);
+
+			% Define some arrays required to use LJM
+			aNames = NET.createArray('System.String', 1);
+			aWrites = NET.createArray('System.Int32', 1);
+			aNumValues = NET.createArray('System.Int32', 1);
 
 			% Transfer the user's values into the byte array.
 			for n=1:numWrite
 				writeData(n) = userWriteData(n);
 			end
-			
-			% Save the ioType being used in a shorter variable name.
-			ioType = LabJack.LabJackUD.IO.I2C_COMMUNICATION;
 
-			% Add an I2C write request
-			channel = LabJack.LabJackUD.CHANNEL.I2C_WRITE;
-			obj.ljud.AddRequestPtr(obj.handle, ioType, channel, numWrite, writeData, 0);
-
-			% Add an I2C read request
-			channel = LabJack.LabJackUD.CHANNEL.I2C_READ;
-			obj.ljud.AddRequestPtr(obj.handle, ioType, channel, numBytesToRead, rawReadData, 0);
+			% Clear the rawReadData array
+			for n=1:numBytesToRead
+				rawReadData(n) = 0;
+			end
 			
-			% Execute the I2C Write and Read Request
-			obj.ljud.GoOne(obj.handle);
+			% Configure the number of bytes need to be written.
+			obj.ljm.eWriteName(obj.handle, 'I2C_NUM_BYTES_TX', numWrite);
+
+			% Configure the number of bytes that need to be read.
+			obj.ljm.eWriteName(obj.handle, 'I2C_NUM_BYTES_RX', numBytesToRead);
+
+			% Send the data that needs to be written to the device.
+			aNames(1) = 'I2C_WRITE_DATA';
+			aWrites(1) = obj.constants.WRITE;
+			aNumValues(1) = numWrite;
+			obj.ljm.eNames(obj.handle, 1, aNames, aWrites, aNumValues, writeData, 0);
+
+			% Perform the I2C request
+			obj.ljm.eWriteName(obj.handle, 'I2C_GO', 1);
+
+			% Get the data that was read during the read-segment of the I2C command.
+			aNames(1) = 'I2C_READ_DATA';
+			aWrites(1) = obj.constants.READ;
+			aNumValues(1) = numBytesToRead;
+			obj.ljm.eNames(obj.handle, 1, aNames, aWrites, aNumValues, rawReadData, 0);
 
 			% Print out debugging info
 			if obj.enable_debug

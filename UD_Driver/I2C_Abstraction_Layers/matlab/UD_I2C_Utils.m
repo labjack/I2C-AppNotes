@@ -92,6 +92,46 @@ classdef UD_I2C_Utils
 				end
 			end
 		end
+		function [numAcks, readData]=readAndGetAcks(obj, numBytesToRead)
+			% Define variables needed for this operation
+			rawReadData = NET.createArray('System.Byte', numBytesToRead);
+			readData = uint8.empty(0, numBytesToRead);
+			
+			% Save the ioType being used in a shorter variable name.
+			ioType = LabJack.LabJackUD.IO.I2C_COMMUNICATION;
+
+			% Add an I2C read request
+			channel = LabJack.LabJackUD.CHANNEL.I2C_READ;
+			obj.ljud.AddRequestPtr(obj.handle, ioType, channel, numBytesToRead, rawReadData, 0);
+			
+			% Add an I2C Get-Acks request
+			numAcks = 0;
+			channel = LabJack.LabJackUD.CHANNEL.I2C_GET_ACKS;
+			obj.ljud.AddRequest(obj.handle, ioType, channel, numAcks, 0, 0);
+			
+			% Execute the I2C Read Request
+			obj.ljud.GoOne(obj.handle);
+
+			% Get the number of ack bits received during the read request.
+			[ljerror, numAcks] = obj.ljud.GetResult(obj.handle, ioType, channel, 0);
+			
+			% Print out debugging info
+			if obj.enable_debug
+				readData
+				disp('Indexing through data...');
+			end
+
+			% Transfer the data out of the NET array and into a more standard
+			% matlab array.
+			for n=1:numBytesToRead
+				readData(n) = rawReadData(n);
+
+				% If debugging is enabled print out the read data in hex format.
+				if obj.enable_debug
+					dataByte = dec2hex(readData(n))
+				end
+			end
+		end
 		function write(obj, userWriteData)
 			% Define variables needed for this operation
 			numWrite = length(userWriteData);
