@@ -1,4 +1,4 @@
-function result = UD_BMP180_acquire_10_sec()
+function result = UD_BMP180_acquire_10x()
 	% This function is designed to verify that the the BMP180 acceelrometer is
 	% properly connected to the LabJack device.  Essentially, it reads the 
 	% Chip-id register from the I2C sensor and makes sure that it received the 
