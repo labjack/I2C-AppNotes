@@ -1,6 +1,6 @@
 ## Getting Started:
 1. Clone, Fork, or [download](https://github.com/labjack/I2C-AppNotes/archive/master.zip) and extract the I2C-AppNotes git repository.
-2. Add the I2C-AppNotes folder (and subfolders) directory to your path using matlabs [pathtool](http://www.mathworks.com/help/matlab/ref/pathtool.html).  In MATLAB's command window type:
+2. Add the I2C-AppNotes folder (and subfolders) to your path using matlabs [pathtool](http://www.mathworks.com/help/matlab/ref/pathtool.html).  In MATLAB's command window type:
   ```matlab
   pathtool
   ```
