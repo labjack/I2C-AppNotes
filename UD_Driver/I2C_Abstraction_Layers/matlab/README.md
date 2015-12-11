@@ -61,6 +61,16 @@ i2cUtils.configure();
 numBytesToRead = 1;
 [readData] = read(numBytesToRead);
 
+% Function: readAndGetAcks
+% Arguments:
+% 1. numBytesToRead, the number of bytes to read during the read command.
+% Returned Data:
+% 1. numAcks, the number of ack bits received during the read command.
+% 2. readData, the data read during the read command.
+numBytesToRead = 1;
+[numAcks, readData] = readAndGetAcks(numBytesToRead);
+
+
 % Function: write
 % Arguments:
 % 1. writeData, the array of bites to be written during the write command.
