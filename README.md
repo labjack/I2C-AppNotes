@@ -28,7 +28,6 @@ There is a lot of useful information in each of the devices datasheets relating 
 * LabVIEW
 * MATLAB
 * (soon...) Lua ([via Lua Scripting](https://labjack.com/support/datasheets/t7/scripting))
-* None Yet...
 
 ## UD Driver I2C Wrappers
 ###Supported Devices
