@@ -92,6 +92,7 @@ function convert_16_bit(msb, lsb, conv)--Returns a number, adjusted using the co
   return -1*res
 end
 
+--Initialize I2C library
 myI2C = I2C_Utils
 
 myI2C.configure(myI2C, 13, 12, 65516, 0, 0x69, 0)--configure the I2C Bus
@@ -111,7 +112,7 @@ myI2C.data_write(myI2C, {0x15, 0x00})
 myI2C.data_write(myI2C, {0x16, 0x18})
 myI2C.data_write(myI2C, {0x3E, 0x00})
 
-LJ.IntervalConfig(0, 1000)             --set interval to 900 for 900ms
+LJ.IntervalConfig(0, 1000)             --set interval to 9=1000 for 1000ms
 
 while true do
   if LJ.CheckInterval(0) then
