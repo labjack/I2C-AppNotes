@@ -1,4 +1,6 @@
 --This is an example that uses the ADXL345 Accelerometer on the I2C Bus on EIO4(SCL) and EIO5(SDA)
+--Before running this example, it is recommended to run the Lua_I2C_Utils.lua file to search
+--for the sensor's slave address and verify that the I2C sensor is connected properly.
 I2C_Utils= {}
 function I2C_Utils.configure(self, isda, iscl, ispeed, ioptions, islave, idebug)--Returns nothing   
   self.sda = isda
