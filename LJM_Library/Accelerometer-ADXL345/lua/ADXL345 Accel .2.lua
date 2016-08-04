@@ -1,6 +1,4 @@
 --This is an example that uses the ADXL345 Accelerometer on the I2C Bus on EIO4(SCL) and EIO5(SDA)
---Before running this example, it is recommended to run the Lua_I2C_Utils.lua file to search
---for the sensor's slave address and verify that the I2C sensor is connected properly.
 I2C_Utils= {}
 function I2C_Utils.configure(self, isda, iscl, ispeed, ioptions, islave, idebug)--Returns nothing   
   self.sda = isda
@@ -95,11 +93,13 @@ function convert_16_bit(msb, lsb, conv)--Returns a number, adjusted using the co
   return -1*res
 end
 
+--Initialize the library
 myI2C = I2C_Utils
 
 SLAVE_ADDRESS = 0x53
 myI2C.configure(myI2C, 13, 12, 65516, 0, SLAVE_ADDRESS, 0)--configure the I2C Bus
 
+--Make sure the accelerometer responds to I2C messages.
 addrs = myI2C.find_all(myI2C, 0, 127)
 addrsLen = table.getn(addrs)
 for i=1, addrsLen do--verify that the target device was found     
@@ -109,7 +109,7 @@ for i=1, addrsLen do--verify that the target device was found
   end
 end
 
---init slave
+--init accelerometer
 myI2C.data_write(myI2C, {0x31, 0x09})--set for +/-4g (use 0x08 for 2g) in full resolution mode
 myI2C.data_write(myI2C, {0x2D, 0x08})--Disable power saving
 
