@@ -1,4 +1,5 @@
 --This is an example that uses the TCS34725 Color Sensor on the I2C Bus on EIO4(SCL) and EIO5(SDA)
+--See datasheet for TCS34725 for more information
 I2C_Utils= {}
 function I2C_Utils.configure(self, isda, iscl, ispeed, ioptions, islave, idebug)--Returns nothing   
   self.sda = isda
@@ -110,7 +111,7 @@ end
 --init slave
 MB.W(2006, 0, 1)
 
-LJ.IntervalConfig(0, 900)             --set interval to 900 for 900ms
+LJ.IntervalConfig(0, 1500)             
 stage = 0 --used to control program progress
 while true do
   if LJ.CheckInterval(0) then
@@ -128,10 +129,18 @@ while true do
         raw = myI2C.data_read(myI2C, 2)[2]
         table.insert(dataIn, raw[2]*256+raw[1])
       end
+      MB.W(46100, 1, dataIn[1])--write clear light value in raw form
+      MB.W(46102, 1, dataIn[2])--write red
+      MB.W(46104, 1, dataIn[3])--write green
+      MB.W(46106, 1, dataIn[4])--write blue
       red =   ((dataIn[2])/dataIn[1])
+      MB.W(46000, 3, red)
       green = ((dataIn[3])/dataIn[1])
+      MB.W(46002, 3, green)
       blue =  ((dataIn[4])/dataIn[1])
-      print(red, green, blue)
+      MB.W(46004, 3, blue)
+      --print(red, green, blue)--print relative (to clear) intesity
+      print("Clear:", dataIn[1], "Red:",  dataIn[2], "Green:",  dataIn[3], "Blue:", dataIn[4])--print absolute intesity
       if red > blue and red > green then
         print("Dominant: Red")
       elseif blue > green and blue > red then
@@ -140,7 +149,7 @@ while true do
         print("Dominant: Green")
       end
       print("-----------")
-      LJ.IntervalConfig(0, 1500)
+      LJ.IntervalConfig(0, 1000)
       stage = 0
     end
   end

@@ -1,4 +1,4 @@
---This is an example that uses the ADXL345 Accelerometer on the I2C Bus on EIO4(SCL) and EIO5(SDA)
+ --This is an example that uses the SX1509 I/O Expander on the I2C Bus on EIO4(SCL) and EIO5(SDA)
 I2C_Utils= {}
 function I2C_Utils.configure(self, isda, iscl, ispeed, ioptions, islave, idebug)--Returns nothing   
   self.sda = isda
@@ -93,13 +93,11 @@ function convert_16_bit(msb, lsb, conv)--Returns a number, adjusted using the co
   return -1*res
 end
 
---Initialize the library
 myI2C = I2C_Utils
 
-SLAVE_ADDRESS = 0x53
+SLAVE_ADDRESS = 0x3E
 myI2C.configure(myI2C, 13, 12, 65516, 0, SLAVE_ADDRESS, 0)--configure the I2C Bus
 
---Make sure the accelerometer responds to I2C messages.
 addrs = myI2C.find_all(myI2C, 0, 127)
 addrsLen = table.getn(addrs)
 for i=1, addrsLen do--verify that the target device was found     
@@ -108,34 +106,51 @@ for i=1, addrsLen do--verify that the target device was found
     break
   end
 end
+--[[Below are the steps required to use the LED driver with the typical LED connection described §6.2 onf the datasheet:
+- Disable input buffer (RegInputDisable)
+- Disable pull-up (RegPullUp)
+- Enable open drain (RegOpenDrain)
+- Set direction to output (RegDir) – by default RegData is set high => LED OFF
+- Enable oscillator (RegClock)   (0100 1000)
+- Configure LED driver clock and mode if relevant (RegMisc)
+- Enable LED driver operation (RegLEDDriverEnable)
+- Configure LED driver parameters (RegTOn, RegIOn, RegOff, RegTRise, RegTFall)
+- Set RegData bit low => LED driver started --]]
+--init slave, config outputs
+myI2C.data_write(myI2C, {0x01, 0xFF})--input buffer disable
+myI2C.data_write(myI2C, {0x07, 0x00})--pull up disable
+myI2C.data_write(myI2C, {0x0B, 0xFF})--open drain
+myI2C.data_write(myI2C, {0x0F, 0x00})--output
+myI2C.data_write(myI2C, {0x11, 0xFF})--all LED off (initially)
+myI2C.data_write(myI2C, {0x1E, 0x4F})--config clock
+myI2C.data_write(myI2C, {0x1F, 0x70})--RegMisc
+myI2C.data_write(myI2C, {0x21, 0xFF})--enable LED Driver
 
---init accelerometer
-myI2C.data_write(myI2C, {0x31, 0x09})--set for +/-4g (use 0x08 for 2g) in full resolution mode
-myI2C.data_write(myI2C, {0x2D, 0x08})--Disable power saving
+--config LED output 3
+myI2C.data_write(myI2C, {0x32, 0x00})--regTOn
+myI2C.data_write(myI2C, {0x33, 0xFF})--regIOn(intensity)
+myI2C.data_write(myI2C, {0x34, 0x00})--regOff
+--config LED output 4
+myI2C.data_write(myI2C, {0x35, 0x00})--regTOn
+myI2C.data_write(myI2C, {0x36, 0xFF})--regIOn(intensity)
+myI2C.data_write(myI2C, {0x37, 0x00})--regOff
+--config LED output 5
+myI2C.data_write(myI2C, {0x3A, 0x00})--regTOn
+myI2C.data_write(myI2C, {0x3B, 0xFF})--regIOn(intensity)
+myI2C.data_write(myI2C, {0x3C, 0x00})--regOff
 
-LJ.IntervalConfig(0, 500)
+LJ.IntervalConfig(0, 100)
 stage = 0 --used to control program progress
+myI2C.data_write(myI2C, {0x11, 255-2^4})--turn 4 on
+i = 0
 while true do
   if LJ.CheckInterval(0) then
-    if stage == 0 then
-      myI2C.data_write(myI2C, {0x32}) --begin the stream of 6 bytes
-      LJ.IntervalConfig(0, 100)       --set interval to 100 for 100ms to give the range finder some processing time
-      stage = 1
-    elseif stage == 1 then
-      raw = myI2C.data_read(myI2C, 6)[2]
-      data = {}
-      for i=0, 2 do
-        table.insert(data, convert_16_bit(raw[(2*i)+2], raw[(2*i)+1], 233))
-      end
-      MB.W(46000, 3, data[1])--add X value, in G's, to the user_ram register
-      MB.W(46002, 3, data[2])--add Y
-      MB.W(46004, 3, data[3])--add Z
-      print("X", data[1])
-      print("Y", data[2])
-      print("Z", data[3])
-      print("-----------")
-      LJ.IntervalConfig(0, 400)
-      stage = 0
+    if i == 256 then
+      i = 0
+    else
+      i = i+1
     end
+    myI2C.data_write(myI2C, {0x36, i})--regIOn(intensity)
+    print(i)
   end
 end

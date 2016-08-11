@@ -76,7 +76,7 @@ end
 myI2C = I2C_Utils
 --Calculate the I2C Options value
 i2cOptions = myI2C.calc_options(myI2C,0,1,0)
---Configure the I2C Utility
+--Configure the I2C Utility 
 myI2C.configure(myI2C, 13, 12, 0, i2cOptions, 0x69, 0)
 --Find connected I2C slave device addresses.
 addrs = myI2C.find_all(myI2C, 0, 127)

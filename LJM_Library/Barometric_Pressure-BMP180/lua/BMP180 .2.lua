@@ -1,4 +1,9 @@
---This is an example that uses the ADXL345 Accelerometer on the I2C Bus on EIO4(SCL) and EIO5(SDA)
+--This is an example that uses the BMP180 Barometric Pressure/Temperature/Altitude sensor on the I2C Bus on EIO4(SCL) and EIO5(SDA)
+--See the datasheet (page 13-17) for calibration constant information & calculation information
+--Outputs data to
+--46018 = temp data
+--46020 = humidity data
+--46022 thru 46042 = calibration constants
 I2C_Utils= {}
 function I2C_Utils.configure(self, isda, iscl, ispeed, ioptions, islave, idebug)--Returns nothing   
   self.sda = isda
@@ -90,51 +95,81 @@ function convert_16_bit(msb, lsb, conv)--Returns a number, adjusted using the co
   else
     res = (msb*256+lsb)/conv
   end
-  return -1*res
+  return res
 end
 
---Initialize the library
 myI2C = I2C_Utils
 
-SLAVE_ADDRESS = 0x53
-myI2C.configure(myI2C, 13, 12, 65516, 0, SLAVE_ADDRESS, 0)--configure the I2C Bus
+myI2C.configure(myI2C, 13, 12, 65516, 0, 0x77, 0)--configure the I2C Bus
 
---Make sure the accelerometer responds to I2C messages.
 addrs = myI2C.find_all(myI2C, 0, 127)
 addrsLen = table.getn(addrs)
 for i=1, addrsLen do--verify that the target device was found     
-  if addrs[i] == SLAVE_ADDRESS then
+  if addrs[i] == 0x29 then
     print("I2C Slave Detected")
     break
   end
 end
 
---init accelerometer
-myI2C.data_write(myI2C, {0x31, 0x09})--set for +/-4g (use 0x08 for 2g) in full resolution mode
-myI2C.data_write(myI2C, {0x2D, 0x08})--Disable power saving
+--init slave
+myI2C.data_write(myI2C, {0xF4, 0x2E})
+--verify operation
+myI2C.data_write(myI2C, {0xD0})
+raw = myI2C.data_read(myI2C, 2)[2]
+if raw[1] == 0x55 then
+  print("I2C Slave Detected")
+end
+--get calibration data
+cal = {}
+for i=0xAA, 0xBF do
+  if i%2 == 0 then
+    myI2C.data_write(myI2C, {i})
+    raw = myI2C.data_read(myI2C, 2)[2]
+    if i == 0xB0 or  i == 0xB2 or i == 0xB4 then
+      data = raw[1]*256+raw[2]--for the 3 values that are unsigned
+    else
+      data = convert_16_bit(raw[1], raw[2], 1)
+    end
+    table.insert(cal, data)
+  end
+end
+for i=1, 11 do
+  MB.W(46022+(i-1)*2, 3, cal[i])--add data to User RAM Registers
+end
 
-LJ.IntervalConfig(0, 500)
+LJ.IntervalConfig(0, 1000)
 stage = 0 --used to control program progress
 while true do
   if LJ.CheckInterval(0) then
     if stage == 0 then
-      myI2C.data_write(myI2C, {0x32}) --begin the stream of 6 bytes
-      LJ.IntervalConfig(0, 100)       --set interval to 100 for 100ms to give the range finder some processing time
+      myI2C.data_write(myI2C, {0xF4, 0x2E})--0x2E for temp, 0x34 for pressure
+      LJ.IntervalConfig(0, 50)
       stage = 1
     elseif stage == 1 then
-      raw = myI2C.data_read(myI2C, 6)[2]
-      data = {}
-      for i=0, 2 do
-        table.insert(data, convert_16_bit(raw[(2*i)+2], raw[(2*i)+1], 233))
-      end
-      MB.W(46000, 3, data[1])--add X value, in G's, to the user_ram register
-      MB.W(46002, 3, data[2])--add Y
-      MB.W(46004, 3, data[3])--add Z
-      print("X", data[1])
-      print("Y", data[2])
-      print("Z", data[3])
-      print("-----------")
-      LJ.IntervalConfig(0, 400)
+      rawT = {}
+      myI2C.data_write(myI2C, {0xF6})--MSB = F6
+      rawT[1] = myI2C.data_read(myI2C, 2)[2][1]
+      myI2C.data_write(myI2C, {0xF7})--LSB = F7
+      rawT[2] = myI2C.data_read(myI2C, 2)[2][1]
+      UT = rawT[1]*256+rawT[2]
+      MB.W(46018, 3, UT) 
+      print("Temperature Data: "..UT)
+      LJ.IntervalConfig(0, 50)
+      stage = 2
+    elseif stage == 2 then
+      myI2C.data_write(myI2C, {0xF4, 0x34})--0x2E for temp, 0x34 for pressure
+      LJ.IntervalConfig(0, 50)
+      stage = 3
+    elseif stage == 3 then
+      rawP = {}
+      myI2C.data_write(myI2C, {0xF6})--MSB = F6
+      rawP[1] = myI2C.data_read(myI2C, 2)[2][1]
+      myI2C.data_write(myI2C, {0xF7})--LSB = F7
+      rawP[2] = myI2C.data_read(myI2C, 2)[2][1]
+      UP = rawP[1]*256+rawP[2]
+      MB.W(46020, 3, UP) 
+      print("Pressure Data: "..UP)
+      LJ.IntervalConfig(0, 1000)
       stage = 0
     end
   end
