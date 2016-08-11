@@ -175,8 +175,9 @@ while true do
     elseif stage == 2 then
       distRaw = myI2C.data_read(myI2C, 2)[2]
       MB.W(46080, 2, distRaw[2])--Store value, in mm, for user to access with another program, such as LabVIEW or Python
+      MB.W(46000, 3,  distRaw[2]/25.4)--Store value in in.
       print("Distance: "..string.format("%.2f", distRaw[2]).."mm "..string.format("%.2f", distRaw[2]/25.4).."in")
-      LJ.IntervalConfig(0, 920)       --reset interval to 900ms
+      LJ.IntervalConfig(0, 420)       --reset interval to 900ms
       stage = 0
     end
   end

@@ -107,21 +107,31 @@ for i=1, addrsLen do--verify that the target device was found
 end
 
 --init sensor
---myI2C.data_write(myI2C, {0x3E, 0x80})
 myI2C.data_write(myI2C, {0x15, 0x00})
 myI2C.data_write(myI2C, {0x16, 0x18})
 myI2C.data_write(myI2C, {0x3E, 0x00})
 
-LJ.IntervalConfig(0, 1000)             --set interval to 9=1000 for 1000ms
+
+LJ.IntervalConfig(0, 200)             --set interval to 200 for 200ms
 
 while true do
   if LJ.CheckInterval(0) then
-    reg = 0x1F--change to 0x1B for temperature, 0x1D for X-axis, 0x1F for Y axis, and 0x21 for Z axis, see page 22 of datasheet for more info
+    reg = 0x1D--change to 0x1B for temperature, 0x1D for X-axis, 0x1F for Y axis, and 0x21 for Z axis, see page 22 of datasheet for more info
     raw = {0, 0}
     raw[1] = myI2C.data_write_and_read(myI2C, {reg}, 1)[2][1]
     raw[2] = myI2C.data_write_and_read(myI2C, {reg+1}, 1)[2][1]
-    rate = convert_16_bit(raw[1], raw[2], 14.375)
-    print(rate)--rate = rotational rate in degrees per second (°/s)
-    MB.W(46000, 3, rate)
+    raw[3] = myI2C.data_write_and_read(myI2C, {reg+2}, 1)[2][1]
+    raw[4] = myI2C.data_write_and_read(myI2C, {reg+3}, 1)[2][1]
+    raw[5] = myI2C.data_write_and_read(myI2C, {reg+4}, 1)[2][1]
+    raw[6] = myI2C.data_write_and_read(myI2C, {reg+5}, 1)[2][1]
+    rateX = convert_16_bit(raw[1], raw[2], 14.375)
+    rateY = convert_16_bit(raw[3], raw[4], 14.375)
+    rateZ = convert_16_bit(raw[5], raw[6], 14.375)
+    print("X: "..rateX)--rate = rotational rate in degrees per second (°/s)
+    print("Y: "..rateY)
+    print("Z: "..rateZ)
+    MB.W(46000, 3, rateX)--write to modbus registers USER_RAM0_F32
+    MB.W(46002, 3, rateY)--write to modbus registers USER_RAM1_F32
+    MB.W(46004, 3, rateZ)--write to modbus registers USER_RAM2_F32
   end
 end

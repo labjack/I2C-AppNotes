@@ -1,4 +1,4 @@
---This is an example that uses the ADXL345 Accelerometer on the I2C Bus on EIO4(SCL) and EIO5(SDA)
+--This is an example that uses the SRF02 sensor, following the datasheet
 I2C_Utils= {}
 function I2C_Utils.configure(self, isda, iscl, ispeed, ioptions, islave, idebug)--Returns nothing   
   self.sda = isda
@@ -83,58 +83,36 @@ function I2C_Utils.find_all(self, ilower, iupper)--Returns an array of all valid
   MB.W(5104, 0, origSlave)
   return validAddresses
 end
-function convert_16_bit(msb, lsb, conv)--Returns a number, adjusted using the conversion factor. Use 1 if not desired  
-  res = 0
-  if msb >= 128 then
-    res = (-0x7FFF+((msb-128)*256+lsb))/conv
-  else
-    res = (msb*256+lsb)/conv
-  end
-  return -1*res
-end
-
---Initialize the library
 myI2C = I2C_Utils
 
-SLAVE_ADDRESS = 0x53
-myI2C.configure(myI2C, 13, 12, 65516, 0, SLAVE_ADDRESS, 0)--configure the I2C Bus
+myI2C.configure(myI2C, 13, 12, 0, 0, 0x70, 0)--configure the I2C Bus
 
---Make sure the accelerometer responds to I2C messages.
 addrs = myI2C.find_all(myI2C, 0, 127)
 addrsLen = table.getn(addrs)
 for i=1, addrsLen do--verify that the target device was found     
-  if addrs[i] == SLAVE_ADDRESS then
+  if addrs[i] == 0x70 then
     print("I2C Slave Detected")
     break
   end
 end
 
---init accelerometer
-myI2C.data_write(myI2C, {0x31, 0x09})--set for +/-4g (use 0x08 for 2g) in full resolution mode
-myI2C.data_write(myI2C, {0x2D, 0x08})--Disable power saving
-
-LJ.IntervalConfig(0, 500)
+LJ.IntervalConfig(0, 900)             --set interval to 900 for 900ms
 stage = 0 --used to control program progress
 while true do
   if LJ.CheckInterval(0) then
     if stage == 0 then
-      myI2C.data_write(myI2C, {0x32}) --begin the stream of 6 bytes
+      myI2C.data_write(myI2C, {0x00, 0x50})--command for range in inches(0x50)
       LJ.IntervalConfig(0, 100)       --set interval to 100 for 100ms to give the range finder some processing time
       stage = 1
     elseif stage == 1 then
-      raw = myI2C.data_read(myI2C, 6)[2]
-      data = {}
-      for i=0, 2 do
-        table.insert(data, convert_16_bit(raw[(2*i)+2], raw[(2*i)+1], 233))
-      end
-      MB.W(46000, 3, data[1])--add X value, in G's, to the user_ram register
-      MB.W(46002, 3, data[2])--add Y
-      MB.W(46004, 3, data[3])--add Z
-      print("X", data[1])
-      print("Y", data[2])
-      print("Z", data[3])
+      distRaw = myI2C.data_read(myI2C, 4)[2]
+      distin = distRaw[3]
+      distcm = distin*2.54
+      MB.W(46000, 3, distcm)--Store value, in cm, for user to access with another program, such as LabVIEW or Python
+      MB.W(46002, 3, distin)--Store value, in inches
+      print("Measured Distance: "..string.format("%d", distcm).."cm".."  ("..string.format("%.1f", distin).."in)")
       print("-----------")
-      LJ.IntervalConfig(0, 400)
+      LJ.IntervalConfig(0, 1000)       --reset interval to 900ms
       stage = 0
     end
   end
