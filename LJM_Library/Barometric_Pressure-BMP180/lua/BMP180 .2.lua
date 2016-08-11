@@ -1,3 +1,9 @@
+--This is an example that uses the BMP180 Barometric Pressure/Temperature/Altitude sensor on the I2C Bus on EIO4(SCL) and EIO5(SDA)
+--See the datasheet (page 13-17) for calibration constant information & calculation information
+--Outputs data to
+--46018 = temp data
+--46020 = humidity data
+--46022 thru 46042 = calibration constants
 I2C_Utils= {}
 function I2C_Utils.configure(self, isda, iscl, ispeed, ioptions, islave, idebug)--Returns nothing   
   self.sda = isda
@@ -69,7 +75,7 @@ function I2C_Utils.find_all(self, ilower, iupper)--Returns an array of all valid
     
     if numAcks ~= 0 then
       table.insert(validAddresses, i)
-      --print("0x"..string.format("%x",slave).." found")
+      -- print("0x"..string.format("%x",slave).." found")
     end
     for j = 0, 1000 do
       --delay
@@ -89,47 +95,82 @@ function convert_16_bit(msb, lsb, conv)--Returns a number, adjusted using the co
   else
     res = (msb*256+lsb)/conv
   end
-  return -1*res
+  return res
 end
 
 myI2C = I2C_Utils
 
-myI2C.configure(myI2C, 13, 12, 65516, 0, 0x69, 0)--configure the I2C Bus
+myI2C.configure(myI2C, 13, 12, 65516, 0, 0x77, 0)--configure the I2C Bus
 
 addrs = myI2C.find_all(myI2C, 0, 127)
 addrsLen = table.getn(addrs)
 for i=1, addrsLen do--verify that the target device was found     
-  if addrs[i] == 0x69 then
+  if addrs[i] == 0x29 then
     print("I2C Slave Detected")
     break
   end
 end
 
---init sensor
-myI2C.data_write(myI2C, {0x15, 0x00})
-myI2C.data_write(myI2C, {0x16, 0x18})
-myI2C.data_write(myI2C, {0x3E, 0x00})
+--init slave
+myI2C.data_write(myI2C, {0xF4, 0x2E})
+--verify operation
+myI2C.data_write(myI2C, {0xD0})
+raw = myI2C.data_read(myI2C, 2)[2]
+if raw[1] == 0x55 then
+  print("I2C Slave Detected")
+end
+--get calibration data
+cal = {}
+for i=0xAA, 0xBF do
+  if i%2 == 0 then
+    myI2C.data_write(myI2C, {i})
+    raw = myI2C.data_read(myI2C, 2)[2]
+    if i == 0xB0 or  i == 0xB2 or i == 0xB4 then
+      data = raw[1]*256+raw[2]--for the 3 values that are unsigned
+    else
+      data = convert_16_bit(raw[1], raw[2], 1)
+    end
+    table.insert(cal, data)
+  end
+end
+for i=1, 11 do
+  MB.W(46022+(i-1)*2, 3, cal[i])--add data to User RAM Registers
+end
 
-LJ.IntervalConfig(0, 200)             --set interval to 900 for 900ms
-
+LJ.IntervalConfig(0, 1000)
+stage = 0 --used to control program progress
 while true do
   if LJ.CheckInterval(0) then
-    reg = 0x1D--change to 0x1B for temperature, 0x1D for X-axis, 0x1F for Y axis, and 0x21 for Z axis, see page 22 of datasheet for more info
-    raw = {0, 0}
-    raw[1] = myI2C.data_write_and_read(myI2C, {reg}, 1)[2][1]
-    raw[2] = myI2C.data_write_and_read(myI2C, {reg+1}, 1)[2][1]
-    raw[3] = myI2C.data_write_and_read(myI2C, {reg+2}, 1)[2][1]
-    raw[4] = myI2C.data_write_and_read(myI2C, {reg+3}, 1)[2][1]
-    raw[5] = myI2C.data_write_and_read(myI2C, {reg+4}, 1)[2][1]
-    raw[6] = myI2C.data_write_and_read(myI2C, {reg+5}, 1)[2][1]
-    rateX = convert_16_bit(raw[1], raw[2], 14.375)
-    rateY = convert_16_bit(raw[3], raw[4], 14.375)
-    rateZ = convert_16_bit(raw[5], raw[6], 14.375)
-    print("X: "..rateX)--rate = rotational rate in degrees per second (°/s)
-    print("Y: "..rateY)
-    print("Z: "..rateZ)
-    MB.W(46000, 3, rateX)--write to modbus registers USER_RAM0_F32
-    MB.W(46002, 3, rateY)--write to modbus registers USER_RAM1_F32
-    MB.W(46004, 3, rateZ)--write to modbus registers USER_RAM2_F32
+    if stage == 0 then
+      myI2C.data_write(myI2C, {0xF4, 0x2E})--0x2E for temp, 0x34 for pressure
+      LJ.IntervalConfig(0, 50)
+      stage = 1
+    elseif stage == 1 then
+      rawT = {}
+      myI2C.data_write(myI2C, {0xF6})--MSB = F6
+      rawT[1] = myI2C.data_read(myI2C, 2)[2][1]
+      myI2C.data_write(myI2C, {0xF7})--LSB = F7
+      rawT[2] = myI2C.data_read(myI2C, 2)[2][1]
+      UT = rawT[1]*256+rawT[2]
+      MB.W(46018, 3, UT) 
+      print("Temperature Data: "..UT)
+      LJ.IntervalConfig(0, 50)
+      stage = 2
+    elseif stage == 2 then
+      myI2C.data_write(myI2C, {0xF4, 0x34})--0x2E for temp, 0x34 for pressure
+      LJ.IntervalConfig(0, 50)
+      stage = 3
+    elseif stage == 3 then
+      rawP = {}
+      myI2C.data_write(myI2C, {0xF6})--MSB = F6
+      rawP[1] = myI2C.data_read(myI2C, 2)[2][1]
+      myI2C.data_write(myI2C, {0xF7})--LSB = F7
+      rawP[2] = myI2C.data_read(myI2C, 2)[2][1]
+      UP = rawP[1]*256+rawP[2]
+      MB.W(46020, 3, UP) 
+      print("Pressure Data: "..UP)
+      LJ.IntervalConfig(0, 1000)
+      stage = 0
+    end
   end
 end

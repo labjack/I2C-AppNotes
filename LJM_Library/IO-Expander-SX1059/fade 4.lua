@@ -1,3 +1,4 @@
+ --This is an example that uses the SX1509 I/O Expander on the I2C Bus on EIO4(SCL) and EIO5(SDA)
 I2C_Utils= {}
 function I2C_Utils.configure(self, isda, iscl, ispeed, ioptions, islave, idebug)--Returns nothing   
   self.sda = isda
@@ -69,7 +70,7 @@ function I2C_Utils.find_all(self, ilower, iupper)--Returns an array of all valid
     
     if numAcks ~= 0 then
       table.insert(validAddresses, i)
-      --print("0x"..string.format("%x",slave).." found")
+      -- print("0x"..string.format("%x",slave).." found")
     end
     for j = 0, 1000 do
       --delay
@@ -94,42 +95,62 @@ end
 
 myI2C = I2C_Utils
 
-myI2C.configure(myI2C, 13, 12, 65516, 0, 0x69, 0)--configure the I2C Bus
+SLAVE_ADDRESS = 0x3E
+myI2C.configure(myI2C, 13, 12, 65516, 0, SLAVE_ADDRESS, 0)--configure the I2C Bus
 
 addrs = myI2C.find_all(myI2C, 0, 127)
 addrsLen = table.getn(addrs)
 for i=1, addrsLen do--verify that the target device was found     
-  if addrs[i] == 0x69 then
+  if addrs[i] == SLAVE_ADDRESS then
     print("I2C Slave Detected")
     break
   end
 end
+--[[Below are the steps required to use the LED driver with the typical LED connection described §6.2 onf the datasheet:
+- Disable input buffer (RegInputDisable)
+- Disable pull-up (RegPullUp)
+- Enable open drain (RegOpenDrain)
+- Set direction to output (RegDir) – by default RegData is set high => LED OFF
+- Enable oscillator (RegClock)   (0100 1000)
+- Configure LED driver clock and mode if relevant (RegMisc)
+- Enable LED driver operation (RegLEDDriverEnable)
+- Configure LED driver parameters (RegTOn, RegIOn, RegOff, RegTRise, RegTFall)
+- Set RegData bit low => LED driver started --]]
+--init slave, config outputs
+myI2C.data_write(myI2C, {0x01, 0xFF})--input buffer disable
+myI2C.data_write(myI2C, {0x07, 0x00})--pull up disable
+myI2C.data_write(myI2C, {0x0B, 0xFF})--open drain
+myI2C.data_write(myI2C, {0x0F, 0x00})--output
+myI2C.data_write(myI2C, {0x11, 0xFF})--all LED off (initially)
+myI2C.data_write(myI2C, {0x1E, 0x4F})--config clock
+myI2C.data_write(myI2C, {0x1F, 0x70})--RegMisc
+myI2C.data_write(myI2C, {0x21, 0xFF})--enable LED Driver
 
---init sensor
-myI2C.data_write(myI2C, {0x15, 0x00})
-myI2C.data_write(myI2C, {0x16, 0x18})
-myI2C.data_write(myI2C, {0x3E, 0x00})
+--config LED output 3
+myI2C.data_write(myI2C, {0x32, 0x00})--regTOn
+myI2C.data_write(myI2C, {0x33, 0xFF})--regIOn(intensity)
+myI2C.data_write(myI2C, {0x34, 0x00})--regOff
+--config LED output 4
+myI2C.data_write(myI2C, {0x35, 0x00})--regTOn
+myI2C.data_write(myI2C, {0x36, 0xFF})--regIOn(intensity)
+myI2C.data_write(myI2C, {0x37, 0x00})--regOff
+--config LED output 5
+myI2C.data_write(myI2C, {0x3A, 0x00})--regTOn
+myI2C.data_write(myI2C, {0x3B, 0xFF})--regIOn(intensity)
+myI2C.data_write(myI2C, {0x3C, 0x00})--regOff
 
-LJ.IntervalConfig(0, 200)             --set interval to 900 for 900ms
-
+LJ.IntervalConfig(0, 100)
+stage = 0 --used to control program progress
+myI2C.data_write(myI2C, {0x11, 255-2^4})--turn 4 on
+i = 0
 while true do
   if LJ.CheckInterval(0) then
-    reg = 0x1D--change to 0x1B for temperature, 0x1D for X-axis, 0x1F for Y axis, and 0x21 for Z axis, see page 22 of datasheet for more info
-    raw = {0, 0}
-    raw[1] = myI2C.data_write_and_read(myI2C, {reg}, 1)[2][1]
-    raw[2] = myI2C.data_write_and_read(myI2C, {reg+1}, 1)[2][1]
-    raw[3] = myI2C.data_write_and_read(myI2C, {reg+2}, 1)[2][1]
-    raw[4] = myI2C.data_write_and_read(myI2C, {reg+3}, 1)[2][1]
-    raw[5] = myI2C.data_write_and_read(myI2C, {reg+4}, 1)[2][1]
-    raw[6] = myI2C.data_write_and_read(myI2C, {reg+5}, 1)[2][1]
-    rateX = convert_16_bit(raw[1], raw[2], 14.375)
-    rateY = convert_16_bit(raw[3], raw[4], 14.375)
-    rateZ = convert_16_bit(raw[5], raw[6], 14.375)
-    print("X: "..rateX)--rate = rotational rate in degrees per second (°/s)
-    print("Y: "..rateY)
-    print("Z: "..rateZ)
-    MB.W(46000, 3, rateX)--write to modbus registers USER_RAM0_F32
-    MB.W(46002, 3, rateY)--write to modbus registers USER_RAM1_F32
-    MB.W(46004, 3, rateZ)--write to modbus registers USER_RAM2_F32
+    if i == 256 then
+      i = 0
+    else
+      i = i+1
+    end
+    myI2C.data_write(myI2C, {0x36, i})--regIOn(intensity)
+    print(i)
   end
 end

@@ -111,7 +111,7 @@ end
 myI2C.data_write(myI2C, {0x31, 0x09})--set for +/-4g (use 0x08 for 2g) in full resolution mode
 myI2C.data_write(myI2C, {0x2D, 0x08})--Disable power saving
 
-LJ.IntervalConfig(0, 900)             --set interval to 900 for 900ms
+LJ.IntervalConfig(0, 500)
 stage = 0 --used to control program progress
 while true do
   if LJ.CheckInterval(0) then
@@ -122,18 +122,17 @@ while true do
     elseif stage == 1 then
       raw = myI2C.data_read(myI2C, 6)[2]
       data = {}
-      --data = {convert_16_bit(raw[2], raw[1], 1)}
       for i=0, 2 do
         table.insert(data, convert_16_bit(raw[(2*i)+2], raw[(2*i)+1], 233))
       end
       MB.W(46000, 3, data[1])--add X value, in G's, to the user_ram register
-      MB.W(46001, 3, data[2])--add Y
-      MB.W(46002, 3, data[3])--add Z
-      print(data[1])
-      print(data[2])
-      print(data[3])
+      MB.W(46002, 3, data[2])--add Y
+      MB.W(46004, 3, data[3])--add Z
+      print("X", data[1])
+      print("Y", data[2])
+      print("Z", data[3])
       print("-----------")
-      LJ.IntervalConfig(0, 200)       --reset interval to 900ms
+      LJ.IntervalConfig(0, 400)
       stage = 0
     end
   end

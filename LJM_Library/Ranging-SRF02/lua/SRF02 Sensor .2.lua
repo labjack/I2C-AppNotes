@@ -1,3 +1,4 @@
+--This is an example that uses the SRF02 sensor, following the datasheet
 I2C_Utils= {}
 function I2C_Utils.configure(self, isda, iscl, ispeed, ioptions, islave, idebug)--Returns nothing   
   self.sda = isda
@@ -69,7 +70,7 @@ function I2C_Utils.find_all(self, ilower, iupper)--Returns an array of all valid
     
     if numAcks ~= 0 then
       table.insert(validAddresses, i)
-      --print("0x"..string.format("%x",slave).." found")
+      -- print("0x"..string.format("%x",slave).." found")
     end
     for j = 0, 1000 do
       --delay
@@ -82,54 +83,37 @@ function I2C_Utils.find_all(self, ilower, iupper)--Returns an array of all valid
   MB.W(5104, 0, origSlave)
   return validAddresses
 end
-function convert_16_bit(msb, lsb, conv)--Returns a number, adjusted using the conversion factor. Use 1 if not desired  
-  res = 0
-  if msb >= 128 then
-    res = (-0x7FFF+((msb-128)*256+lsb))/conv
-  else
-    res = (msb*256+lsb)/conv
-  end
-  return -1*res
-end
-
 myI2C = I2C_Utils
 
-myI2C.configure(myI2C, 13, 12, 65516, 0, 0x69, 0)--configure the I2C Bus
+myI2C.configure(myI2C, 13, 12, 0, 0, 0x70, 0)--configure the I2C Bus
 
 addrs = myI2C.find_all(myI2C, 0, 127)
 addrsLen = table.getn(addrs)
 for i=1, addrsLen do--verify that the target device was found     
-  if addrs[i] == 0x69 then
+  if addrs[i] == 0x70 then
     print("I2C Slave Detected")
     break
   end
 end
 
---init sensor
-myI2C.data_write(myI2C, {0x15, 0x00})
-myI2C.data_write(myI2C, {0x16, 0x18})
-myI2C.data_write(myI2C, {0x3E, 0x00})
-
-LJ.IntervalConfig(0, 200)             --set interval to 900 for 900ms
-
+LJ.IntervalConfig(0, 900)             --set interval to 900 for 900ms
+stage = 0 --used to control program progress
 while true do
   if LJ.CheckInterval(0) then
-    reg = 0x1D--change to 0x1B for temperature, 0x1D for X-axis, 0x1F for Y axis, and 0x21 for Z axis, see page 22 of datasheet for more info
-    raw = {0, 0}
-    raw[1] = myI2C.data_write_and_read(myI2C, {reg}, 1)[2][1]
-    raw[2] = myI2C.data_write_and_read(myI2C, {reg+1}, 1)[2][1]
-    raw[3] = myI2C.data_write_and_read(myI2C, {reg+2}, 1)[2][1]
-    raw[4] = myI2C.data_write_and_read(myI2C, {reg+3}, 1)[2][1]
-    raw[5] = myI2C.data_write_and_read(myI2C, {reg+4}, 1)[2][1]
-    raw[6] = myI2C.data_write_and_read(myI2C, {reg+5}, 1)[2][1]
-    rateX = convert_16_bit(raw[1], raw[2], 14.375)
-    rateY = convert_16_bit(raw[3], raw[4], 14.375)
-    rateZ = convert_16_bit(raw[5], raw[6], 14.375)
-    print("X: "..rateX)--rate = rotational rate in degrees per second (°/s)
-    print("Y: "..rateY)
-    print("Z: "..rateZ)
-    MB.W(46000, 3, rateX)--write to modbus registers USER_RAM0_F32
-    MB.W(46002, 3, rateY)--write to modbus registers USER_RAM1_F32
-    MB.W(46004, 3, rateZ)--write to modbus registers USER_RAM2_F32
+    if stage == 0 then
+      myI2C.data_write(myI2C, {0x00, 0x50})--command for range in inches(0x50)
+      LJ.IntervalConfig(0, 100)       --set interval to 100 for 100ms to give the range finder some processing time
+      stage = 1
+    elseif stage == 1 then
+      distRaw = myI2C.data_read(myI2C, 4)[2]
+      distin = distRaw[3]
+      distcm = distin*2.54
+      MB.W(46000, 3, distcm)--Store value, in cm, for user to access with another program, such as LabVIEW or Python
+      MB.W(46002, 3, distin)--Store value, in inches
+      print("Measured Distance: "..string.format("%d", distcm).."cm".."  ("..string.format("%.1f", distin).."in)")
+      print("-----------")
+      LJ.IntervalConfig(0, 1000)       --reset interval to 900ms
+      stage = 0
+    end
   end
 end
