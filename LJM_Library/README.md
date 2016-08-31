@@ -22,4 +22,4 @@ There is a lot of useful information in each of the devices datasheets relating 
 ###Available Wrappers
 * Matlab
 * LabVIEW
-* (soon...) Lua ([via Lua Scripting](https://labjack.com/support/datasheets/t7/scripting))
+* Lua ([via Lua Scripting](https://labjack.com/support/datasheets/t7/scripting))
